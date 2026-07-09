@@ -4,9 +4,9 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\URL;
 use App\Models\Cita;
 use App\Models\Barberia;
-use illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
