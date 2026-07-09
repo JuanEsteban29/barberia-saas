@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use App\Models\Cita;
 use App\Models\Barberia;
+iluminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,6 +23,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+URL::forceScheme('https'); // Forzar HTTPS en todas las URLs generadas
         View::composer('layouts.app', function ($view) {
             $barberia = Barberia::firstOrCreate(
                 ['slug' => 'barberia-principal'],
