@@ -43,8 +43,16 @@
     <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-amber-600/20 rounded-full blur-[120px] pointer-events-none"></div>
     <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none"></div>
 
+    <!-- SIDEBAR BACKDROP (Mobile only) -->
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-40 hidden transition-opacity duration-300 opacity-0" onclick="toggleSidebar()"></div>
+
     <!-- SIDEBAR -->
-    <aside class="w-72 glass-panel flex flex-col h-full shadow-2xl relative z-20 border-r border-slate-800/50 transition-all duration-300">
+    <aside id="sidebar" class="fixed md:static inset-y-0 left-0 w-72 glass-panel flex flex-col h-full shadow-2xl z-50 border-r border-slate-800/50 transition-transform duration-300 transform -translate-x-full md:translate-x-0">
+        <!-- Close Button (Mobile only) -->
+        <button onclick="toggleSidebar()" class="absolute top-4 right-4 text-slate-400 hover:text-white md:hidden cursor-pointer" title="Cerrar Menú">
+            <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+
         <!-- Logo -->
         <div class="p-6 border-b border-slate-800/50 flex items-center space-x-3">
             <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white shadow-lg shadow-amber-500/20">
@@ -134,36 +142,41 @@
     <div class="flex-1 flex flex-col h-full relative z-10">
         
         <!-- Header -->
-        <header class="glass-panel h-20 border-b border-slate-800/50 flex items-center justify-between px-10 sticky top-0 z-30">
-            <div class="flex items-center gap-4">
-                <h1 class="text-2xl font-bold text-white tracking-tight">
+        <header class="glass-panel h-20 border-b border-slate-800/50 flex items-center justify-between px-4 md:px-10 sticky top-0 z-30">
+            <div class="flex items-center gap-3 md:gap-4">
+                <!-- Hamburger Button (Mobile only) -->
+                <button onclick="toggleSidebar()" class="p-2 -ml-2 text-slate-400 hover:text-white md:hidden focus:outline-none cursor-pointer" title="Abrir Menú">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+                
+                <h1 class="text-lg md:text-2xl font-bold text-white tracking-tight truncate max-w-[180px] sm:max-w-none">
                     @if(auth()->check() && strtolower(auth()->user()->role) === 'barbero')
                         Espacio del Barbero
                     @else
                         Centro de Mando
                     @endif
                 </h1>
-                <div class="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                <div class="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                     <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Sistema Online</span>
                 </div>
             </div>
             
-            <div class="flex items-center gap-6">
+            <div class="flex items-center gap-3 md:gap-6">
                 <button class="relative text-slate-400 hover:text-white transition-colors">
                     <i class="fa-regular fa-bell text-xl"></i>
                     <span class="absolute top-0 right-0 w-2 h-2 bg-rose-500 rounded-full border-2 border-slate-900"></span>
                 </button>
                 <div class="h-8 w-px bg-slate-800"></div>
-                <div class="text-right hidden sm:block">
-                    <p class="text-sm font-bold text-white">{{ auth()->check() ? auth()->user()->barberia->nombre ?? 'Mi Barbería' : 'Sistema' }}</p>
-                    <p class="text-xs text-slate-400" id="live-time">Cargando hora...</p>
+                <div class="text-right">
+                    <p class="text-xs md:text-sm font-bold text-white truncate max-w-[100px] sm:max-w-none">{{ auth()->check() ? auth()->user()->barberia->nombre ?? 'Mi Barbería' : 'Sistema' }}</p>
+                    <p class="text-[10px] md:text-xs text-slate-400" id="live-time">Cargando hora...</p>
                 </div>
             </div>
         </header>
 
         <!-- Dynamic Content -->
-        <main class="flex-1 overflow-y-auto p-6 md:p-10 relative">
+        <main class="flex-1 overflow-y-auto p-4 md:p-10 relative">
             <!-- Decorative inner glow -->
             <div class="absolute inset-0 bg-gradient-to-b from-transparent to-slate-950/50 pointer-events-none"></div>
             
@@ -183,6 +196,32 @@
         }
         setInterval(updateTime, 1000);
         updateTime();
+
+        // Toggle Sidebar on Mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            
+            if (sidebar.classList.contains('-translate-x-full')) {
+                // Open
+                sidebar.classList.remove('-translate-x-full');
+                sidebar.classList.add('translate-x-0');
+                backdrop.classList.remove('hidden');
+                setTimeout(() => {
+                    backdrop.classList.remove('opacity-0');
+                    backdrop.classList.add('opacity-100');
+                }, 10);
+            } else {
+                // Close
+                sidebar.classList.remove('translate-x-0');
+                sidebar.classList.add('-translate-x-full');
+                backdrop.classList.remove('opacity-100');
+                backdrop.classList.add('opacity-0');
+                setTimeout(() => {
+                    backdrop.classList.add('hidden');
+                }, 300);
+            }
+        }
     </script>
 </body>
 </html>
