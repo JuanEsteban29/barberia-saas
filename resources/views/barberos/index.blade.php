@@ -1,20 +1,20 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="animate-fade-in-up space-y-8">
+<div class="animate-fade-in-up space-y-5">
 
     <!-- Header -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-5">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-            <p class="text-xs font-bold text-amber-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+            <p class="text-xs font-bold text-amber-500 uppercase tracking-widest mb-1 flex items-center gap-2">
                 <i class="fa-solid fa-users"></i> Gestión de Personal
             </p>
-            <h1 class="text-3xl md:text-4xl font-black text-white tracking-tight">Nómina y Comisiones</h1>
-            <p class="text-slate-400 mt-2 text-sm">Monitorea la producción individual y administra el alta de barberos.</p>
+            <h1 class="text-2xl md:text-4xl font-black text-white tracking-tight">Nómina y Comisiones</h1>
+            <p class="text-slate-400 mt-1 text-xs md:text-sm">Monitorea la producción individual y administra el alta de barberos.</p>
         </div>
         <button onclick="toggleModalBarbero(true)"
-            class="inline-flex items-center gap-2.5 px-5 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 rounded-xl font-black text-sm transition-all shadow-lg shadow-amber-500/20 cursor-pointer">
-            <i class="fa-solid fa-plus"></i> Registrar Nuevo Trabajador
+            class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 rounded-xl font-black text-xs md:text-sm transition-all shadow-lg shadow-amber-500/20 cursor-pointer flex-shrink-0">
+            <i class="fa-solid fa-plus"></i> Nuevo Trabajador
         </button>
     </div>
 
@@ -25,32 +25,98 @@
         </div>
     @endif
 
-    <!-- Tabla de Nómina -->
+    <!-- TABLA DE NÓMINA -->
     <div class="bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-800/60 shadow-xl overflow-hidden">
-        <div class="px-7 py-5 bg-gradient-to-r from-slate-800/80 to-transparent border-b border-slate-800/60">
+        <div class="px-5 py-4 bg-gradient-to-r from-slate-800/80 to-transparent border-b border-slate-800/60">
             <h3 class="font-bold text-white text-xs uppercase tracking-widest flex items-center gap-3">
                 <i class="fa-solid fa-table-list text-amber-400"></i> Nómina Operativa de la Semana
             </h3>
         </div>
 
-        <div class="overflow-x-auto">
+        <!-- Mobile Cards -->
+        <div class="md:hidden divide-y divide-slate-800/50">
+            @foreach($nominaSabado as $item)
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-amber-500 font-black text-sm shadow-inner flex-shrink-0">
+                                {{ strtoupper(substr($item['name'], 0, 1)) }}
+                            </div>
+                            <div>
+                                <p class="font-bold text-white text-sm">{{ $item['name'] }}</p>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded {{ $item['role'] === 'admin' ? 'bg-amber-500/10 border border-amber-500/20 text-amber-400' : 'bg-blue-500/10 border border-blue-500/20 text-blue-400' }}">
+                                    {{ ucfirst($item['role']) }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] text-slate-500 uppercase tracking-wider">Pago Neto</p>
+                            <p class="text-lg font-black text-white">${{ $item['pago_neto_este_sabado'] }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-2 mb-3">
+                        <div class="bg-slate-800/50 rounded-lg p-2 text-center">
+                            <p class="text-[9px] text-slate-500 uppercase tracking-wider mb-1">Cortes</p>
+                            <p class="font-bold text-slate-300 text-sm">{{ $item['cortes_totales'] }}</p>
+                        </div>
+                        <div class="bg-slate-800/50 rounded-lg p-2 text-center">
+                            <p class="text-[9px] text-slate-500 uppercase tracking-wider mb-1">Comisión</p>
+                            <p class="font-bold text-emerald-400 text-sm">${{ $item['su_comision'] }}</p>
+                        </div>
+                        <div class="bg-slate-800/50 rounded-lg p-2 text-center">
+                            <p class="text-[9px] text-slate-500 uppercase tracking-wider mb-1">Adelantos</p>
+                            <p class="font-bold text-rose-400 text-sm">-${{ $item['descuento_adelantos'] }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-2">
+                        <form action="{{ route('semana.cerrar') }}" method="POST" class="flex-1">
+                            @csrf
+                            <input type="hidden" name="barbero_id" value="{{ $item['id'] }}">
+                            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-2 px-3 rounded-lg transition cursor-pointer flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-lock"></i> Cerrar Cuenta
+                            </button>
+                        </form>
+                        <form action="{{ route('barberos.destroy', $item['id']) }}" method="POST"
+                            onsubmit="return confirm('¿Seguro que deseas dar de baja a este trabajador?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="bg-rose-600/80 hover:bg-rose-600 text-white text-xs font-bold py-2 px-3 rounded-lg transition cursor-pointer flex items-center gap-1.5">
+                                <i class="fa-solid fa-user-slash"></i> Baja
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            @endforeach
+
+            @if(empty($nominaSabado))
+                <div class="py-12 text-center text-slate-500 text-sm">
+                    <i class="fa-solid fa-users-slash text-2xl mb-2 opacity-20 block"></i>
+                    No hay personal registrado.
+                </div>
+            @endif
+        </div>
+
+        <!-- Desktop Table -->
+        <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="text-slate-500 uppercase text-[10px] tracking-widest border-b border-slate-800/60">
-                        <th class="px-7 py-3 font-bold">Barbero</th>
-                        <th class="px-7 py-3 font-bold">Rol</th>
-                        <th class="px-7 py-3 text-center font-bold">Cortes</th>
-                        <th class="px-7 py-3 text-right font-bold">Total Producido</th>
-                        <th class="px-7 py-3 text-right font-bold">Comisión (60%)</th>
-                        <th class="px-7 py-3 text-right font-bold">Adelantos / Vales</th>
-                        <th class="px-7 py-3 text-right font-bold">Pago Neto Sábado</th>
-                        <th class="px-7 py-3 text-center font-bold">Acciones</th>
+                        <th class="px-5 py-3 font-bold">Barbero</th>
+                        <th class="px-5 py-3 font-bold">Rol</th>
+                        <th class="px-5 py-3 text-center font-bold">Cortes</th>
+                        <th class="px-5 py-3 text-right font-bold">Total Producido</th>
+                        <th class="px-5 py-3 text-right font-bold">Comisión (60%)</th>
+                        <th class="px-5 py-3 text-right font-bold">Adelantos</th>
+                        <th class="px-5 py-3 text-right font-bold">Pago Neto Sáb.</th>
+                        <th class="px-5 py-3 text-center font-bold">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-800/50 text-sm">
                     @foreach($nominaSabado as $item)
                         <tr class="hover:bg-slate-800/30 transition-colors group">
-                            <td class="px-7 py-4">
+                            <td class="px-5 py-4">
                                 <div class="flex items-center gap-3">
                                     <div class="w-9 h-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-amber-500 font-black text-sm shadow-inner flex-shrink-0">
                                         {{ strtoupper(substr($item['name'], 0, 1)) }}
@@ -58,33 +124,26 @@
                                     <span class="font-bold text-white">{{ $item['name'] }}</span>
                                 </div>
                             </td>
-                            <td class="px-7 py-4">
+                            <td class="px-5 py-4">
                                 <span class="text-xs font-bold px-2.5 py-1 rounded-md {{ $item['role'] === 'admin' ? 'bg-amber-500/10 border border-amber-500/20 text-amber-400' : 'bg-blue-500/10 border border-blue-500/20 text-blue-400' }}">
                                     {{ ucfirst($item['role']) }}
                                 </span>
                             </td>
-                            <td class="px-7 py-4 text-center">
+                            <td class="px-5 py-4 text-center">
                                 <span class="bg-slate-800 text-slate-300 font-bold text-sm px-3 py-1 rounded-md">{{ $item['cortes_totales'] }}</span>
                             </td>
-                            <td class="px-7 py-4 text-right text-slate-400 font-semibold">
-                                ${{ $item['total_producido'] }}
-                            </td>
-                            <td class="px-7 py-4 text-right font-black text-emerald-400">
-                                ${{ $item['su_comision'] }}
-                            </td>
-                            <td class="px-7 py-4 text-right text-rose-400 font-bold">
-                                -${{ $item['descuento_adelantos'] }}
-                            </td>
-                            <td class="px-7 py-4 text-right">
+                            <td class="px-5 py-4 text-right text-slate-400 font-semibold">${{ $item['total_producido'] }}</td>
+                            <td class="px-5 py-4 text-right font-black text-emerald-400">${{ $item['su_comision'] }}</td>
+                            <td class="px-5 py-4 text-right text-rose-400 font-bold">-${{ $item['descuento_adelantos'] }}</td>
+                            <td class="px-5 py-4 text-right">
                                 <span class="text-xl font-black text-white">${{ $item['pago_neto_este_sabado'] }}</span>
                             </td>
-                            <td class="px-7 py-4 text-center">
+                            <td class="px-5 py-4 text-center">
                                 <div class="flex justify-center gap-2">
                                     <form action="{{ route('semana.cerrar') }}" method="POST">
                                         @csrf
                                         <input type="hidden" name="barbero_id" value="{{ $item['id'] }}">
-                                        <button type="submit"
-                                            class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-1.5 px-3 rounded-lg transition cursor-pointer flex items-center gap-1.5 shadow-lg shadow-emerald-500/10">
+                                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-1.5 px-3 rounded-lg transition cursor-pointer flex items-center gap-1.5 shadow-lg shadow-emerald-500/10">
                                             <i class="fa-solid fa-lock"></i> Cerrar Cuenta
                                         </button>
                                     </form>
@@ -92,8 +151,7 @@
                                         onsubmit="return confirm('¿Seguro que deseas dar de baja a este trabajador?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit"
-                                            class="bg-rose-600/80 hover:bg-rose-600 text-white text-xs font-bold py-1.5 px-3 rounded-lg transition cursor-pointer flex items-center gap-1.5">
+                                        <button type="submit" class="bg-rose-600/80 hover:bg-rose-600 text-white text-xs font-bold py-1.5 px-3 rounded-lg transition cursor-pointer flex items-center gap-1.5">
                                             <i class="fa-solid fa-user-slash"></i> Baja
                                         </button>
                                     </form>
@@ -108,13 +166,13 @@
 </div>
 
 <!-- MODAL: Registrar Barbero -->
-<div id="modalBarbero" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+<div id="modalBarbero" style="display: none;" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div onclick="toggleModalBarbero(false)" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm"></div>
 
-    <div class="relative bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden z-10">
-        <div class="p-7">
-            <div class="flex justify-between items-center pb-4 border-b border-slate-800 mb-6">
-                <h3 class="text-lg font-black text-white flex items-center gap-3">
+    <div class="relative bg-slate-900 border border-slate-800 w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden z-10">
+        <div class="p-5 md:p-7">
+            <div class="flex justify-between items-center pb-4 border-b border-slate-800 mb-5">
+                <h3 class="text-base font-black text-white flex items-center gap-3">
                     <div class="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center">
                         <i class="fa-solid fa-user-plus text-amber-400 text-sm"></i>
                     </div>
@@ -131,9 +189,7 @@
                 <div>
                     <label class="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-wider">Nombre Completo</label>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
-                            <i class="fa-regular fa-user text-sm"></i>
-                        </span>
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500"><i class="fa-regular fa-user text-sm"></i></span>
                         <input type="text" name="nombre" required placeholder="Ej. Pedro Pérez"
                             class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition placeholder-slate-600">
                     </div>
@@ -142,21 +198,16 @@
                 <div>
                     <label class="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-wider">Rol / Cargo</label>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
-                            <i class="fa-solid fa-user-shield text-sm"></i>
-                        </span>
-                        <select name="rol"
-                            class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-3 pl-10 pr-10 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition appearance-none cursor-pointer">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500"><i class="fa-solid fa-user-shield text-sm"></i></span>
+                        <select name="rol" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-3 pl-10 pr-10 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition appearance-none cursor-pointer">
                             <option value="Barbero" class="bg-slate-900">Barbero</option>
                             <option value="admin" class="bg-slate-900">Administrador</option>
                         </select>
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-500">
-                            <i class="fa-solid fa-chevron-down text-xs"></i>
-                        </div>
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-500"><i class="fa-solid fa-chevron-down text-xs"></i></div>
                     </div>
                 </div>
 
-                <div class="flex justify-end gap-3 pt-4 border-t border-slate-800 mt-6">
+                <div class="flex justify-end gap-3 pt-4 border-t border-slate-800">
                     <button type="button" onclick="toggleModalBarbero(false)"
                         class="px-5 py-2.5 text-sm font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl transition-colors cursor-pointer">
                         Cancelar

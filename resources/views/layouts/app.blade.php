@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Barberia ERP - Panel Premium</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
@@ -30,11 +30,19 @@
             border-left: 3px solid rgba(245, 158, 11, 0.5);
             color: #fcd34d;
         }
-        /* Custom scrollbar for a premium feel */
+        /* Custom scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+        /* Bottom Nav active state */
+        .bottom-nav-item { transition: all 0.2s ease; }
+        .bottom-nav-item.active { color: #f59e0b; }
+        .bottom-nav-item.active i { transform: translateY(-2px); }
+
+        /* Safe area for notched phones */
+        .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 12px); }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-300 font-sans flex h-screen overflow-hidden relative">
@@ -46,7 +54,7 @@
     <!-- SIDEBAR BACKDROP (Mobile only) -->
     <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-40 hidden transition-opacity duration-300 opacity-0" onclick="toggleSidebar()"></div>
 
-    <!-- SIDEBAR -->
+    <!-- SIDEBAR (Desktop always visible, Mobile slide-in) -->
     <aside id="sidebar" class="fixed md:static inset-y-0 left-0 w-72 glass-panel flex flex-col h-full shadow-2xl z-50 border-r border-slate-800/50 transition-transform duration-300 transform -translate-x-full md:translate-x-0">
         <!-- Close Button (Mobile only) -->
         <button onclick="toggleSidebar()" class="absolute top-4 right-4 text-slate-400 hover:text-white md:hidden cursor-pointer" title="Cerrar Menú">
@@ -119,7 +127,7 @@
         <!-- Footer Sidebar -->
         <div class="p-6 border-t border-slate-800/50">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700 shadow-inner">
+                <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700 shadow-inner flex-shrink-0">
                     <span class="text-amber-500 font-bold text-sm">{{ auth()->check() ? strtoupper(substr(auth()->user()->name, 0, 1)) : 'U' }}</span>
                 </div>
                 <div class="flex-1 overflow-hidden">
@@ -139,44 +147,46 @@
     </aside>
 
     <!-- MAIN CONTENT AREA -->
-    <div class="flex-1 flex flex-col h-full relative z-10">
+    <div class="flex-1 flex flex-col h-full relative z-10 min-w-0">
         
         <!-- Header -->
-        <header class="glass-panel h-20 border-b border-slate-800/50 flex items-center justify-between px-4 md:px-10 sticky top-0 z-30">
-            <div class="flex items-center gap-3 md:gap-4">
+        <header class="glass-panel h-16 md:h-20 border-b border-slate-800/50 flex items-center justify-between px-4 md:px-10 sticky top-0 z-30 flex-shrink-0">
+            <div class="flex items-center gap-3">
                 <!-- Hamburger Button (Mobile only) -->
                 <button onclick="toggleSidebar()" class="p-2 -ml-2 text-slate-400 hover:text-white md:hidden focus:outline-none cursor-pointer" title="Abrir Menú">
                     <i class="fa-solid fa-bars text-xl"></i>
                 </button>
                 
-                <h1 class="text-lg md:text-2xl font-bold text-white tracking-tight truncate max-w-[180px] sm:max-w-none">
-                    @if(auth()->check() && strtolower(auth()->user()->role) === 'barbero')
-                        Espacio del Barbero
-                    @else
-                        Centro de Mando
-                    @endif
-                </h1>
-                <div class="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Sistema Online</span>
+                <div class="flex items-center gap-2">
+                    <h1 class="text-base md:text-2xl font-bold text-white tracking-tight">
+                        @if(auth()->check() && strtolower(auth()->user()->role) === 'barbero')
+                            Espacio del Barbero
+                        @else
+                            Centro de Mando
+                        @endif
+                    </h1>
+                    <div class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Online</span>
+                    </div>
                 </div>
             </div>
             
             <div class="flex items-center gap-3 md:gap-6">
                 <button class="relative text-slate-400 hover:text-white transition-colors">
-                    <i class="fa-regular fa-bell text-xl"></i>
-                    <span class="absolute top-0 right-0 w-2 h-2 bg-rose-500 rounded-full border-2 border-slate-900"></span>
+                    <i class="fa-regular fa-bell text-lg md:text-xl"></i>
+                    <span class="absolute top-0 right-0 w-1.5 h-1.5 md:w-2 md:h-2 bg-rose-500 rounded-full border-2 border-slate-900"></span>
                 </button>
                 <div class="h-8 w-px bg-slate-800"></div>
                 <div class="text-right">
-                    <p class="text-xs md:text-sm font-bold text-white truncate max-w-[100px] sm:max-w-none">{{ auth()->check() ? auth()->user()->barberia->nombre ?? 'Mi Barbería' : 'Sistema' }}</p>
-                    <p class="text-[10px] md:text-xs text-slate-400" id="live-time">Cargando hora...</p>
+                    <p class="text-xs md:text-sm font-bold text-white max-w-[90px] sm:max-w-none truncate">{{ auth()->check() ? (auth()->user()->barberia->nombre ?? 'Mi Barbería') : 'Sistema' }}</p>
+                    <p class="text-[9px] md:text-xs text-slate-400 hidden sm:block" id="live-time">Cargando...</p>
                 </div>
             </div>
         </header>
 
         <!-- Dynamic Content -->
-        <main class="flex-1 overflow-y-auto p-4 md:p-10 relative">
+        <main class="flex-1 overflow-y-auto p-3 md:p-10 pb-20 md:pb-10 relative">
             <!-- Decorative inner glow -->
             <div class="absolute inset-0 bg-gradient-to-b from-transparent to-slate-950/50 pointer-events-none"></div>
             
@@ -186,13 +196,52 @@
         </main>
     </div>
 
+    <!-- BOTTOM NAVIGATION (Mobile only) -->
+    @if(auth()->check())
+    <nav class="fixed bottom-0 left-0 right-0 z-50 md:hidden glass-panel border-t border-slate-800/60 safe-bottom">
+        <div class="flex items-stretch">
+            @if(strtolower(auth()->user()->role) === 'admin')
+                <a href="{{ route('dashboard') }}" class="bottom-nav-item flex-1 flex flex-col items-center py-3 gap-1 text-xs font-bold {{ request()->routeIs('dashboard') ? 'active text-amber-500' : 'text-slate-500' }}">
+                    <i class="fa-solid fa-chart-pie text-lg"></i>
+                    <span class="text-[9px]">Dashboard</span>
+                </a>
+                <a href="{{ route('cortes.index') }}" class="bottom-nav-item flex-1 flex flex-col items-center py-3 gap-1 text-xs font-bold {{ request()->routeIs('cortes.index') ? 'active text-amber-500' : 'text-slate-500' }}">
+                    <i class="fa-solid fa-scissors text-lg"></i>
+                    <span class="text-[9px]">Cortes</span>
+                </a>
+                <a href="{{ route('barberos.index') }}" class="bottom-nav-item flex-1 flex flex-col items-center py-3 gap-1 text-xs font-bold {{ request()->routeIs('barberos.index') ? 'active text-amber-500' : 'text-slate-500' }}">
+                    <i class="fa-solid fa-user-tie text-lg"></i>
+                    <span class="text-[9px]">Personal</span>
+                </a>
+                <a href="{{ route('finanzas.index') }}" class="bottom-nav-item flex-1 flex flex-col items-center py-3 gap-1 text-xs font-bold {{ request()->routeIs('finanzas.index') ? 'active text-amber-500' : 'text-slate-500' }}">
+                    <i class="fa-solid fa-wallet text-lg"></i>
+                    <span class="text-[9px]">Finanzas</span>
+                </a>
+                <a href="{{ route('fiados.index') }}" class="bottom-nav-item flex-1 flex flex-col items-center py-3 gap-1 text-xs font-bold {{ request()->routeIs('fiados.index') ? 'active text-amber-500' : 'text-slate-500' }} relative">
+                    <i class="fa-solid fa-handshake text-lg"></i>
+                    <span class="text-[9px]">Fiados</span>
+                    @if(isset($fiadosCount) && $fiadosCount > 0)
+                        <span class="absolute top-2 right-1/4 w-4 h-4 bg-rose-500 rounded-full text-white text-[8px] font-black flex items-center justify-center">{{ $fiadosCount }}</span>
+                    @endif
+                </a>
+            @elseif(strtolower(auth()->user()->role) === 'barbero')
+                <a href="{{ route('barbero.dashboard') }}" class="bottom-nav-item flex-1 flex flex-col items-center py-3 gap-1 text-xs font-bold {{ request()->routeIs('barbero.dashboard') ? 'active text-amber-500' : 'text-slate-500' }}">
+                    <i class="fa-solid fa-chart-line text-lg"></i>
+                    <span class="text-[9px]">Rendimiento</span>
+                </a>
+            @endif
+        </div>
+    </nav>
+    @endif
+
     <script>
-        // Reloj en tiempo real
+        // Live clock
         function updateTime() {
             const now = new Date();
             const timeString = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
             const dateString = now.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' });
-            document.getElementById('live-time').textContent = dateString + ' • ' + timeString;
+            const el = document.getElementById('live-time');
+            if (el) el.textContent = dateString + ' • ' + timeString;
         }
         setInterval(updateTime, 1000);
         updateTime();
@@ -203,7 +252,6 @@
             const backdrop = document.getElementById('sidebar-backdrop');
             
             if (sidebar.classList.contains('-translate-x-full')) {
-                // Open
                 sidebar.classList.remove('-translate-x-full');
                 sidebar.classList.add('translate-x-0');
                 backdrop.classList.remove('hidden');
@@ -212,7 +260,6 @@
                     backdrop.classList.add('opacity-100');
                 }, 10);
             } else {
-                // Close
                 sidebar.classList.remove('translate-x-0');
                 sidebar.classList.add('-translate-x-full');
                 backdrop.classList.remove('opacity-100');
@@ -222,6 +269,15 @@
                 }, 300);
             }
         }
+
+        // Close sidebar when a nav link is clicked on mobile
+        document.querySelectorAll('#sidebar a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth < 768) {
+                    toggleSidebar();
+                }
+            });
+        });
     </script>
 </body>
 </html>
