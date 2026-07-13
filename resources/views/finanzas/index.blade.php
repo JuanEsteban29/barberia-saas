@@ -95,7 +95,35 @@
                 <i class="fa-solid fa-lock text-xs"></i> Ir al Cierre de Caja
             </a>
         </div>
-        <div class="overflow-x-auto">
+        <!-- Mobile Cards -->
+        <div class="md:hidden divide-y divide-slate-800/50">
+            @forelse($gastosSemanales as $gasto)
+                <div class="p-4 flex justify-between items-center gap-3">
+                    <div class="min-w-0">
+                        <p class="font-bold text-white text-sm truncate">{{ $gasto->descripcion }}</p>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="text-[10px] text-slate-500 font-medium">
+                                {{ \Carbon\Carbon::parse($gasto->fecha_gasto)->format('d/m H:i') }}
+                            </span>
+                            <span class="bg-slate-800 border border-slate-700 text-slate-300 text-[9px] px-1.5 py-0.5 rounded font-medium">
+                                {{ $gasto->categoria }}
+                            </span>
+                        </div>
+                    </div>
+                    <span class="font-black text-rose-400 text-base flex-shrink-0">
+                        -${{ number_format($gasto->monto, 2) }}
+                    </span>
+                </div>
+            @empty
+                <div class="py-12 text-center text-slate-500 text-sm">
+                    <i class="fa-solid fa-circle-check text-emerald-400/20 text-3xl mb-2 block"></i>
+                    <p class="font-bold text-slate-400 mb-1">Sin gastos registrados</p>
+                </div>
+            @endforelse
+        </div>
+
+        <!-- Desktop Table -->
+        <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="text-slate-500 uppercase text-[10px] tracking-widest border-b border-slate-800/60">
@@ -138,19 +166,19 @@
     </div>
 
     <!-- MODAL: Registrar Gasto (Alpine.js) -->
-    <div x-show="showModalGasto" class="fixed inset-0 z-50 flex items-center justify-center p-4" x-cloak style="display:none;">
+    <div x-show="showModalGasto" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" x-cloak style="display:none;">
         <div @click="showModalGasto = false"
              x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
              x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
              class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm"></div>
 
         <div x-show="showModalGasto"
-             x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
-             x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
-             class="relative bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl shadow-2xl z-10 p-7">
+             x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-8 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+             x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-8 sm:scale-95"
+             class="relative bg-slate-900 border border-slate-800 w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl shadow-2xl z-10 p-5 md:p-7">
 
-            <div class="flex justify-between items-center pb-4 border-b border-slate-800 mb-6">
-                <h3 class="text-lg font-black text-white flex items-center gap-3">
+            <div class="flex justify-between items-center pb-4 border-b border-slate-800 mb-5">
+                <h3 class="text-base sm:text-lg font-black text-white flex items-center gap-3">
                     <div class="w-8 h-8 rounded-lg bg-rose-500/20 border border-rose-500/30 flex items-center justify-center">
                         <i class="fa-solid fa-minus text-rose-400 text-sm"></i>
                     </div>
