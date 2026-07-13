@@ -1,0 +1,16 @@
+# Nixpacks configuration for Laravel 13
+
+[variables]
+# Set the server root directory to Laravel's public directory
+NIXPACKS_PHP_ROOT_DIR = "/app/public"
+# Configure Nginx fallback path to direct all requests to index.php
+NIXPACKS_PHP_FALLBACK_PATH = "/index.php"
+# Set environment to production during build
+APP_ENV = "production"
+
+[phases.build]
+# Run both composer install and asset compilation during build phase
+cmds = [
+    "composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader",
+    "npm install && npm run build"
+]
