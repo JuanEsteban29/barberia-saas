@@ -186,7 +186,7 @@
         </header>
 
         <!-- Dynamic Content -->
-        <main class="flex-1 overflow-y-auto p-3 md:p-10 pb-20 md:pb-10 relative">
+        <main class="flex-1 overflow-y-auto p-3 md:p-10 pb-36 md:pb-10 relative">
             <!-- Decorative inner glow -->
             <div class="absolute inset-0 bg-gradient-to-b from-transparent to-slate-950/50 pointer-events-none"></div>
             

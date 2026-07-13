@@ -70,23 +70,27 @@
                         </div>
                     </div>
                     
-                    <div class="flex gap-2">
-                        <form action="{{ route('semana.cerrar') }}" method="POST" class="flex-1">
-                            @csrf
-                            <input type="hidden" name="barbero_id" value="{{ $item['id'] }}">
-                            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-2 px-3 rounded-lg transition cursor-pointer flex items-center justify-center gap-1.5">
-                                <i class="fa-solid fa-lock"></i> Cerrar Cuenta
-                            </button>
-                        </form>
-                        <form action="{{ route('barberos.destroy', $item['id']) }}" method="POST"
-                            onsubmit="return confirm('¿Seguro que deseas dar de baja a este trabajador?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="bg-rose-600/80 hover:bg-rose-600 text-white text-xs font-bold py-2 px-3 rounded-lg transition cursor-pointer flex items-center gap-1.5">
-                                <i class="fa-solid fa-user-slash"></i> Baja
-                            </button>
-                        </form>
-                    </div>
+                    {{-- Acción principal: Cerrar Cuenta --}}
+                    <form action="{{ route('semana.cerrar') }}" method="POST" class="w-full mb-2">
+                        @csrf
+                        <input type="hidden" name="barbero_id" value="{{ $item['id'] }}">
+                        <button type="submit"
+                            class="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-black py-3.5 px-4 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 text-sm">
+                            <i class="fa-solid fa-lock text-base"></i>
+                            <span>Cerrar Cuenta del Sábado</span>
+                        </button>
+                    </form>
+                    {{-- Acción secundaria: Dar de baja --}}
+                    <form action="{{ route('barberos.destroy', $item['id']) }}" method="POST"
+                        onsubmit="return confirm('¿Seguro que deseas dar de baja a este trabajador?')" class="w-full">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit"
+                            class="w-full bg-slate-800 hover:bg-rose-900/40 border border-slate-700 hover:border-rose-700/60 text-slate-400 hover:text-rose-400 text-xs font-bold py-2.5 px-4 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-user-slash text-xs"></i>
+                            <span>Dar de Baja al Trabajador</span>
+                        </button>
+                    </form>
                 </div>
             @endforeach
 
