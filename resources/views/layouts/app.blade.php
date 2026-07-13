@@ -55,7 +55,7 @@
     <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-40 hidden transition-opacity duration-300 opacity-0" onclick="toggleSidebar()"></div>
 
     <!-- SIDEBAR (Desktop always visible, Mobile slide-in) -->
-    <aside id="sidebar" class="fixed md:static inset-y-0 left-0 w-72 glass-panel flex flex-col h-full shadow-2xl z-50 border-r border-slate-800/50 transition-transform duration-300 transform -translate-x-full md:translate-x-0">
+    <aside id="sidebar" class="fixed md:static inset-y-0 left-0 w-72 glass-panel flex flex-col h-[100dvh] max-h-[100dvh] shadow-2xl z-50 border-r border-slate-800/50 transition-transform duration-300 transform -translate-x-full md:translate-x-0">
         <!-- Close Button (Mobile only) -->
         <button onclick="toggleSidebar()" class="absolute top-4 right-4 text-slate-400 hover:text-white md:hidden cursor-pointer" title="Cerrar Menú">
             <i class="fa-solid fa-xmark text-xl"></i>
@@ -121,6 +121,16 @@
                     <span class="font-medium text-sm group-hover:text-emerald-400 transition-colors">Ver Link de Reservas</span>
                     <i class="fa-solid fa-arrow-up-right-from-square text-[10px] ml-auto opacity-50"></i>
                 </a>
+
+                {{-- Cerrar sesión en el menú para móviles por si el footer queda tapado --}}
+                <div class="h-px bg-slate-800/60 my-4 mx-6"></div>
+                <form action="{{ route('logout') }}" method="POST" class="block w-full">
+                    @csrf
+                    <button type="submit" class="w-full nav-item flex items-center space-x-4 px-6 py-3 text-rose-400 hover:text-rose-300 hover:bg-rose-500/5 cursor-pointer">
+                        <i class="fa-solid fa-power-off w-5 text-center text-lg"></i>
+                        <span class="font-medium text-sm">Cerrar Sesión</span>
+                    </button>
+                </form>
             @endif
         </nav>
 
