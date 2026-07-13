@@ -19,10 +19,38 @@ class ReporteController extends Controller
 {
     private function obtenerBarberiaActiva()
     {
-        return Barberia::firstOrCreate(
+        $barberia = Barberia::firstOrCreate(
             ['slug' => 'barberia-principal'],
             ['nombre' => 'Mi Barbería Profesional', 'porcentaje_barbero' => 60]
         );
+
+        if (\App\Models\Servicio::count() === 0) {
+            \App\Models\Servicio::create([
+                'barberia_id' => $barberia->id,
+                'nombre' => 'Corte Degradado',
+                'descripcion' => 'Corte moderno con degradado',
+                'precio' => 10.00,
+                'duracion' => 30,
+            ]);
+
+            \App\Models\Servicio::create([
+                'barberia_id' => $barberia->id,
+                'nombre' => 'Servicio de Barba',
+                'descripcion' => 'Afeitado y perfilado de barba',
+                'precio' => 5.00,
+                'duracion' => 20,
+            ]);
+
+            \App\Models\Servicio::create([
+                'barberia_id' => $barberia->id,
+                'nombre' => 'Corte y Barba Completo',
+                'descripcion' => 'Corte de cabello y perfilado de barba completo',
+                'precio' => 12.00,
+                'duracion' => 45,
+            ]);
+        }
+
+        return $barberia;
     }
 
     /**

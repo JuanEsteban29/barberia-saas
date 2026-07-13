@@ -16,13 +16,47 @@ class ReservaController extends Controller
      */
     public function createPublic($slug)
     {
-        // Buscar la barbería activa por su slug
-        $barberia = Barberia::where('slug', $slug)->firstOrFail();
+        // Buscar la barbería activa por su slug (o crearla si es la principal y no existe)
+        if ($slug === 'barberia-principal') {
+            $barberia = Barberia::firstOrCreate(
+                ['slug' => 'barberia-principal'],
+                ['nombre' => 'Mi Barbería Profesional', 'porcentaje_barbero' => 60]
+            );
+        } else {
+            $barberia = Barberia::where('slug', $slug)->firstOrFail();
+        }
 
         // Obtener los barberos asociados a esta barbería
         $barberos = User::where('barberia_id', $barberia->id)
             ->whereIn('role', ['admin', 'barbero'])
             ->get();
+
+        // Si la tabla de servicios está vacía, creamos los servicios por defecto
+        if (Servicio::count() === 0) {
+            Servicio::create([
+                'barberia_id' => $barberia->id,
+                'nombre' => 'Corte Degradado',
+                'descripcion' => 'Corte moderno con degradado',
+                'precio' => 10.00,
+                'duracion' => 30,
+            ]);
+
+            Servicio::create([
+                'barberia_id' => $barberia->id,
+                'nombre' => 'Servicio de Barba',
+                'descripcion' => 'Afeitado y perfilado de barba',
+                'precio' => 5.00,
+                'duracion' => 20,
+            ]);
+
+            Servicio::create([
+                'barberia_id' => $barberia->id,
+                'nombre' => 'Corte y Barba Completo',
+                'descripcion' => 'Corte de cabello y perfilado de barba completo',
+                'precio' => 12.00,
+                'duracion' => 45,
+            ]);
+        }
 
         // Obtener los servicios asociados a esta barbería
         $servicios = Servicio::where('barberia_id', $barberia->id)->get();
@@ -40,7 +74,15 @@ class ReservaController extends Controller
      */
     public function storePublic(Request $request, $slug)
     {
-        $barberia = Barberia::where('slug', $slug)->firstOrFail();
+        // Buscar la barbería activa por su slug (o crearla si es la principal y no existe)
+        if ($slug === 'barberia-principal') {
+            $barberia = Barberia::firstOrCreate(
+                ['slug' => 'barberia-principal'],
+                ['nombre' => 'Mi Barbería Profesional', 'porcentaje_barbero' => 60]
+            );
+        } else {
+            $barberia = Barberia::where('slug', $slug)->firstOrFail();
+        }
 
         $request->validate([
             'cliente_nombre'   => 'required|string|max:255',
