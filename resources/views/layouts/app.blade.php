@@ -179,6 +179,10 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                         <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Online</span>
                     </div>
+                    <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 font-bold text-[10px] uppercase tracking-wider">
+                        <i class="fa-solid fa-money-bill-transfer"></i>
+                        <span>BCV: Bs. {{ number_format($tasaBcv, 2) }}</span>
+                    </div>
                 </div>
             </div>
             

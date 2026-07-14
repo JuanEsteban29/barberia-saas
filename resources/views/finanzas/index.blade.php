@@ -28,6 +28,12 @@
         </div>
     @endif
 
+    {{-- Banner Tasa BCV del Día --}}
+    <div class="flex items-center gap-3 px-4 py-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-400 text-sm font-bold">
+        <i class="fa-solid fa-money-bill-transfer text-base"></i>
+        <span>Tasa BCV: <strong class="text-amber-300">Bs. {{ number_format($tasaBcv, 2) }} / $1 USD</strong></span>
+    </div>
+
     <!-- KPI Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
 
@@ -39,6 +45,7 @@
             <div class="relative z-10">
                 <p class="text-xs text-slate-400 uppercase tracking-widest font-bold mb-2">Ingresos Brutos</p>
                 <p class="text-3xl font-black text-white">${{ number_format($totalBruto, 2) }}</p>
+                <p class="text-xs text-emerald-400/60 font-bold mt-1">Bs. {{ number_format($totalBruto * $tasaBcv, 2) }}</p>
                 <div class="mt-3 pt-3 border-t border-slate-800/80 flex justify-between text-xs font-semibold text-slate-500">
                     <span>Efe: <span class="text-emerald-400">${{ number_format($dineroEfectivo, 2) }}</span></span>
                     <span>Trans: <span class="text-blue-400">${{ number_format($dineroTransferencia, 2) }}</span></span>
@@ -54,6 +61,7 @@
             <div class="relative z-10">
                 <p class="text-xs text-rose-400/70 uppercase tracking-widest font-bold mb-2">Gastos / Egresos</p>
                 <p class="text-3xl font-black text-rose-400">-${{ number_format($totalGastos, 2) }}</p>
+                <p class="text-xs text-rose-400/60 font-bold mt-1">-Bs. {{ number_format($totalGastos * $tasaBcv, 2) }}</p>
                 <p class="text-xs text-slate-500 mt-3 font-semibold uppercase tracking-wider">Costos operativos registrados</p>
             </div>
         </div>
@@ -66,6 +74,7 @@
             <div class="relative z-10">
                 <p class="text-xs text-blue-400/70 uppercase tracking-widest font-bold mb-2">Retenido Personal</p>
                 <p class="text-3xl font-black text-blue-400">-${{ number_format($totalComisiones, 2) }}</p>
+                <p class="text-xs text-blue-400/60 font-bold mt-1">-Bs. {{ number_format($totalComisiones * $tasaBcv, 2) }}</p>
                 <p class="text-xs text-slate-500 mt-3 font-semibold uppercase tracking-wider">Comisiones por pagar</p>
             </div>
         </div>
@@ -79,6 +88,7 @@
             <div class="relative z-10">
                 <p class="text-xs uppercase tracking-widest font-bold mb-2 {{ $gananciaNeta >= 0 ? 'text-amber-400/70' : 'text-rose-400/70' }}">Ganancia Neta Real</p>
                 <p class="text-3xl font-black {{ $gananciaNeta >= 0 ? 'text-amber-400' : 'text-rose-400' }}">${{ number_format($gananciaNeta, 2) }}</p>
+                <p class="text-xs font-bold mt-1 {{ $gananciaNeta >= 0 ? 'text-amber-400/60' : 'text-rose-400/60' }}">Bs. {{ number_format($gananciaNeta * $tasaBcv, 2) }}</p>
                 <p class="text-xs text-slate-500 mt-3 font-semibold uppercase tracking-wider">Margen limpio del negocio</p>
             </div>
         </div>

@@ -39,6 +39,12 @@
         </div>
     @endif
 
+    {{-- Banner Tasa BCV del Día --}}
+    <div class="flex items-center gap-3 px-4 py-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-400 text-sm font-bold">
+        <i class="fa-solid fa-money-bill-transfer text-base"></i>
+        <span>Tasa BCV: <strong class="text-amber-300">Bs. {{ number_format($tasaBcv, 2) }} / $1 USD</strong></span>
+    </div>
+
     <!-- KPI Cards -->
     <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
 
@@ -50,6 +56,7 @@
                 <p class="text-xs text-slate-400 uppercase tracking-widest font-bold">Efectivo</p>
             </div>
             <p class="text-2xl font-black text-emerald-400">${{ number_format($totalEfectivo, 2) }}</p>
+            <p class="text-[10px] text-emerald-500/60 font-bold mt-0.5">Bs. {{ number_format($totalEfectivo * $tasaBcv, 2) }}</p>
         </div>
 
         <div class="bg-slate-900/50 backdrop-blur-md p-5 rounded-2xl border border-slate-800/60 shadow-lg hover:border-blue-500/30 transition-colors">
@@ -60,6 +67,7 @@
                 <p class="text-xs text-slate-400 uppercase tracking-widest font-bold">Transferencia</p>
             </div>
             <p class="text-2xl font-black text-blue-400">${{ number_format($totalTransferencia, 2) }}</p>
+            <p class="text-[10px] text-blue-500/60 font-bold mt-0.5">Bs. {{ number_format($totalTransferencia * $tasaBcv, 2) }}</p>
         </div>
 
         <div class="bg-slate-900/50 backdrop-blur-md p-5 rounded-2xl border border-amber-900/30 shadow-lg">
@@ -70,6 +78,7 @@
                 <p class="text-xs text-amber-400/70 uppercase tracking-widest font-bold">Fiados</p>
             </div>
             <p class="text-2xl font-black text-amber-400">${{ number_format($totalFiado, 2) }}</p>
+            <p class="text-[10px] text-amber-500/60 font-bold mt-0.5">Bs. {{ number_format($totalFiado * $tasaBcv, 2) }}</p>
             <p class="text-[10px] text-slate-500 mt-1 font-semibold uppercase">No entran al cierre</p>
         </div>
 
@@ -81,6 +90,7 @@
                 <p class="text-xs text-rose-400/70 uppercase tracking-widest font-bold">Gastos</p>
             </div>
             <p class="text-2xl font-black text-rose-400">-${{ number_format($totalGastos, 2) }}</p>
+            <p class="text-[10px] text-rose-500/60 font-bold mt-0.5">-Bs. {{ number_format($totalGastos * $tasaBcv, 2) }}</p>
         </div>
 
         <div class="p-5 rounded-2xl border shadow-lg relative overflow-hidden
@@ -91,6 +101,7 @@
             <div class="relative z-10">
                 <p class="text-xs uppercase tracking-widest font-bold mb-3 {{ $netoReal >= 0 ? 'text-amber-400/70' : 'text-rose-400/70' }}">Neto Real</p>
                 <p class="text-2xl font-black {{ $netoReal >= 0 ? 'text-amber-400' : 'text-rose-400' }}">${{ number_format($netoReal, 2) }}</p>
+                <p class="text-[10px] font-bold mt-0.5 {{ $netoReal >= 0 ? 'text-amber-500/60' : 'text-rose-500/60' }}">Bs. {{ number_format($netoReal * $tasaBcv, 2) }}</p>
                 <p class="text-[10px] text-slate-500 mt-1 font-semibold uppercase">Ingresos - Gastos</p>
             </div>
         </div>
@@ -322,7 +333,10 @@
                 <div class="h-px bg-slate-800"></div>
                 <div class="flex justify-between items-center">
                     <span class="font-bold text-white text-sm">Gran Total:</span>
-                    <span class="font-black text-amber-400 text-xl">${{ number_format($totalIngresos, 2) }}</span>
+                    <div class="text-right">
+                        <span class="font-black text-amber-400 text-xl">${{ number_format($totalIngresos, 2) }}</span>
+                        <p class="text-[10px] text-amber-500/60 font-bold">Bs. {{ number_format($totalIngresos * $tasaBcv, 2) }}</p>
+                    </div>
                 </div>
             </div>
 

@@ -23,7 +23,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-         URL::forceScheme('https'); // Forzar HTTPS en todas las URLs generadas
+        URL::forceScheme('https'); // Forzar HTTPS en todas las URLs generadas
+        
+        // Obtener la tasa BCV del día y compartirla en todas las vistas Blade
+        try {
+            $tasaBcv = \App\Services\BcvService::obtenerTasa();
+        } catch (\Exception $e) {
+            $tasaBcv = 45.50;
+        }
+        View::share('tasaBcv', $tasaBcv);
+
         View::composer('layouts.app', function ($view) {
             $barberia = Barberia::firstOrCreate(
                 ['slug' => 'barberia-principal'],

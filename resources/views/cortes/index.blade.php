@@ -12,6 +12,12 @@
         <p class="text-slate-400 mt-1 text-xs md:text-sm">El servicio se integra automáticamente en cajas y comisiones.</p>
     </div>
 
+    {{-- Banner Tasa BCV del Día --}}
+    <div class="flex items-center gap-3 px-4 py-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-400 text-sm font-bold">
+        <i class="fa-solid fa-money-bill-transfer text-base"></i>
+        <span>Tasa BCV del Día: <strong class="text-amber-300">Bs. {{ number_format($tasaBcv, 2) }} / $1.00 USD</strong></span>
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
         <!-- FORMULARIO DE REGISTRO -->
@@ -65,7 +71,7 @@
                             <option value="" class="bg-slate-950">-- Elige el servicio --</option>
                             @foreach($serviciosDisponibles as $servicio)
                                 <option value="{{ $servicio->id }}" class="bg-slate-950">
-                                    {{ $servicio->nombre }} — ${{ number_format($servicio->precio, 2) }}
+                                    {{ $servicio->nombre }} — ${{ number_format($servicio->precio, 2) }} · Bs. {{ number_format($servicio->precio * $tasaBcv, 2) }}
                                 </option>
                             @endforeach
                         </select>
@@ -115,6 +121,7 @@
                         <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Efectivo</span>
                     </div>
                     <span class="text-lg md:text-2xl font-black text-emerald-400">${{ number_format($dineroEfectivo, 2) }}</span>
+                    <p class="text-[9px] text-emerald-500/60 font-bold mt-0.5">Bs. {{ number_format($dineroEfectivo * $tasaBcv, 2) }}</p>
                 </div>
                 <div class="bg-slate-900/50 backdrop-blur-md p-4 rounded-2xl border border-slate-800/60 shadow-lg">
                     <div class="flex items-center gap-2 mb-2">
@@ -124,15 +131,17 @@
                         <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Banco</span>
                     </div>
                     <span class="text-lg md:text-2xl font-black text-blue-400">${{ number_format($dineroTransferencia, 2) }}</span>
+                    <p class="text-[9px] text-blue-500/60 font-bold mt-0.5">Bs. {{ number_format($dineroTransferencia * $tasaBcv, 2) }}</p>
                 </div>
                 <div class="bg-gradient-to-br from-amber-900/30 to-slate-900/60 backdrop-blur-md p-4 rounded-2xl border border-amber-800/30 shadow-lg">
                     <div class="flex items-center gap-2 mb-2">
                         <div class="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center flex-shrink-0">
                             <i class="fa-solid fa-vault text-amber-400 text-xs"></i>
                         </div>
-                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total</span>
+                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Caja</span>
                     </div>
                     <span class="text-lg md:text-2xl font-black text-amber-400">${{ number_format($totalRecaudado, 2) }}</span>
+                    <p class="text-[9px] text-amber-500/60 font-bold mt-0.5">Bs. {{ number_format($totalRecaudado * $tasaBcv, 2) }}</p>
                 </div>
             </div>
 

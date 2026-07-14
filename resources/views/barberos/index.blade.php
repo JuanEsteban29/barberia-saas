@@ -25,6 +25,12 @@
         </div>
     @endif
 
+    {{-- Banner Tasa BCV del Día --}}
+    <div class="flex items-center gap-3 px-4 py-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-400 text-sm font-bold">
+        <i class="fa-solid fa-money-bill-transfer text-base"></i>
+        <span>Tasa BCV: <strong class="text-amber-300">Bs. {{ number_format($tasaBcv, 2) }} / $1 USD</strong></span>
+    </div>
+
     <!-- TABLA DE NÓMINA -->
     <div class="bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-800/60 shadow-xl overflow-hidden">
         <div class="px-5 py-4 bg-gradient-to-r from-slate-800/80 to-transparent border-b border-slate-800/60">
@@ -52,6 +58,7 @@
                         <div class="text-right">
                             <p class="text-[10px] text-slate-500 uppercase tracking-wider">Pago Neto</p>
                             <p class="text-lg font-black text-white">${{ $item['pago_neto_este_sabado'] }}</p>
+                            <p class="text-[9px] text-amber-500/60 font-bold">Bs. {{ number_format((float)str_replace(',','',$item['pago_neto_este_sabado']) * $tasaBcv, 2) }}</p>
                         </div>
                     </div>
                     
@@ -63,6 +70,7 @@
                         <div class="bg-slate-800/50 rounded-lg p-2 text-center">
                             <p class="text-[9px] text-slate-500 uppercase tracking-wider mb-1">Comisión</p>
                             <p class="font-bold text-emerald-400 text-sm">${{ $item['su_comision'] }}</p>
+                            <p class="text-[8px] text-emerald-500/50 font-bold">Bs. {{ number_format((float)str_replace(',','',$item['su_comision']) * $tasaBcv, 0) }}</p>
                         </div>
                         <div class="bg-slate-800/50 rounded-lg p-2 text-center">
                             <p class="text-[9px] text-slate-500 uppercase tracking-wider mb-1">Adelantos</p>
