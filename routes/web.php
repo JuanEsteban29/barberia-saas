@@ -70,6 +70,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/cierre', [CierreController::class, 'store'])->name('cierre.store');
 
         // API y Fiados
+        Route::get('/reservas', [ReservaController::class, 'index'])->name('reservas.index');
         Route::get('/barberias', [BarberiaController::class, 'index'])->name('barberias.index');
         Route::get('/barberia/{slug}', [BarberiaController::class, 'show'])->name('barberias.show');
         Route::get('/citas', [CitaController::class, 'index'])->name('citas.index');

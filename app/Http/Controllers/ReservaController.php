@@ -13,6 +13,27 @@ use Illuminate\Http\Request;
 class ReservaController extends Controller
 {
     /**
+     * Muestra la lista de reservas/citas para el administrador.
+     */
+    public function index()
+    {
+        $barberia = Barberia::firstOrCreate(
+            ['slug' => 'barberia-principal'],
+            ['nombre' => 'Mi Barbería Profesional', 'porcentaje_barbero' => 60]
+        );
+
+        $citas = Corte::with(['cliente', 'barbero', 'servicio'])
+            ->where('barberia_id', $barberia->id)
+            ->orderBy('fecha_hora', 'desc')
+            ->get();
+
+        $citasPendientes = $citas->where('estado', 'pendiente');
+        $citasCompletadas = $citas->where('estado', 'completada');
+        $citasFiadas = $citas->where('estado', 'fiado');
+
+        return view('reservas.index', compact('barberia', 'citasPendientes', 'citasCompletadas', 'citasFiadas'));
+    }
+    /**
      * Muestra el formulario de reserva público para una barbería específica.
      */
     public function createPublic($slug)
