@@ -149,12 +149,6 @@
                         <i class="fa-solid fa-gears w-5 text-center text-lg"></i>
                         <span class="font-medium text-sm">Configuraciones</span>
                     </a>
-                @else
-                    <a href="{{ route('reservas.public.create', auth()->user()->barberia->slug ?? 'demo') }}" target="_blank" class="nav-item flex items-center space-x-4 px-6 py-3 text-slate-400 group">
-                        <i class="fa-regular fa-calendar-check w-5 text-center text-lg group-hover:text-emerald-400 transition-colors"></i>
-                        <span class="font-medium text-sm group-hover:text-emerald-400 transition-colors">Ver Link de Reservas</span>
-                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px] ml-auto opacity-50"></i>
-                    </a>
                 @endif
 
                 {{-- Cerrar sesión en el menú para móviles por si el footer queda tapado --}}
