@@ -1,168 +1,217 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="animate-fade-in-up">
+<div class="animate-fade-in-up space-y-6">
 
     {{-- Flash Messages --}}
     @if(session('success'))
-        <div class="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm rounded-xl flex items-center gap-3">
+        <div class="p-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm rounded-xl flex items-center gap-3">
             <i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
             <span class="font-semibold">{{ session('success') }}</span>
         </div>
     @endif
     @if(session('error'))
-        <div class="mb-6 p-4 bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm rounded-xl flex items-center gap-3">
+        <div class="p-4 bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm rounded-xl flex items-center gap-3">
             <i class="fa-solid fa-triangle-exclamation text-rose-400 text-lg"></i>
             <span class="font-semibold">{{ session('error') }}</span>
         </div>
     @endif
 
     <!-- Header -->
-    <div class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-            <p class="text-xs font-bold text-amber-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-                <i class="fa-solid fa-scissors"></i> Panel de Barbero
+            <p class="text-xs font-bold text-amber-500 uppercase tracking-widest mb-1 flex items-center gap-2">
+                <i class="fa-solid fa-scissors"></i> Panel del Barbero
             </p>
-            <h1 class="text-3xl md:text-4xl font-black text-white tracking-tight">¡Hola, {{ auth()->user()->name }}! 👋</h1>
-            <p class="text-slate-400 mt-2 text-sm">Tu rendimiento, clientes y comisiones en tiempo real.</p>
+            <h1 class="text-3xl font-black text-white tracking-tight">¡Hola, {{ auth()->user()->name }}! 👋</h1>
+            <p class="text-slate-400 text-xs md:text-sm">Tu agenda diaria, ventas de productos y comisiones acumuladas en tiempo real.</p>
         </div>
 
-        <!-- Split Badge -->
-        <div class="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5 flex items-center gap-4 backdrop-blur-md shadow-xl">
-            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
-                <i class="fa-solid fa-handshake text-white text-xl"></i>
+        <!-- Split Badge Dynamic -->
+        <div class="bg-slate-900/80 border border-slate-800/60 rounded-2xl p-4 flex items-center gap-4 backdrop-blur-md shadow-xl">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
+                <i class="fa-solid fa-handshake text-white text-base"></i>
             </div>
             <div>
-                <span class="text-xs text-slate-400 font-bold block uppercase tracking-wider mb-1">Esquema de Split</span>
-                <span class="text-lg font-black text-amber-400">60% Tú</span>
-                <span class="text-slate-500 font-bold mx-2">/</span>
-                <span class="text-lg font-black text-slate-300">40% Local</span>
+                <span class="text-[9px] text-slate-400 font-bold block uppercase tracking-wider">Tu Porcentaje</span>
+                <span class="text-base font-black text-amber-400">
+                    {{ auth()->user()->porcentaje_comision !== null ? auth()->user()->porcentaje_comision : ($barberia->porcentaje_barbero ?? 60) }}% Cortes
+                </span>
+                <span class="text-[9px] text-slate-500 font-bold block">10% Recomendación Productos</span>
             </div>
         </div>
     </div>
 
-    <!-- METRIC CARDS -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-        <!-- Total Cortes -->
-        <div class="bg-slate-900/50 backdrop-blur-md p-6 rounded-2xl border border-slate-800/60 shadow-lg hover:border-slate-600 transition-colors group relative overflow-hidden">
-            <div class="absolute -right-4 -top-4 text-slate-700/40 text-7xl group-hover:text-slate-600/40 transition-colors">
-                <i class="fa-solid fa-scissors"></i>
-            </div>
-            <div class="relative z-10">
-                <p class="text-xs text-slate-400 uppercase tracking-widest font-bold mb-2">Cortes Realizados</p>
-                <p class="text-4xl font-black text-white">{{ $totalCortesContados }}</p>
-                <p class="text-xs text-slate-500 mt-3 font-semibold uppercase tracking-wider">Total acumulado en el sistema</p>
-            </div>
-        </div>
-
-        <!-- Comisiones Cobradas -->
-        <div class="bg-slate-900/50 backdrop-blur-md p-6 rounded-2xl border border-emerald-900/40 shadow-lg hover:border-emerald-700/40 transition-colors group relative overflow-hidden">
-            <div class="absolute -right-4 -top-4 text-emerald-900/40 text-7xl group-hover:text-emerald-800/40 transition-colors">
-                <i class="fa-solid fa-wallet"></i>
-            </div>
-            <div class="relative z-10">
-                <p class="text-xs text-emerald-400/70 uppercase tracking-widest font-bold mb-2">Comisiones Cobradas</p>
-                <p class="text-4xl font-black text-emerald-400">${{ number_format($comisionesCobradas, 2) }}</p>
-                <div class="flex items-center gap-2 mt-3 text-xs font-bold text-emerald-400 bg-emerald-500/10 inline-flex px-2.5 py-1 rounded-md border border-emerald-500/20">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block"></span> Disponibles / Cobradas
-                </div>
-            </div>
-        </div>
-
-        <!-- Comisiones Pendientes -->
-        <div class="bg-gradient-to-br from-slate-900/80 to-rose-950/40 backdrop-blur-md p-6 rounded-2xl border border-rose-900/30 shadow-lg hover:border-rose-700/40 transition-colors group relative overflow-hidden">
-            <div class="absolute -right-4 -top-4 text-rose-900/40 text-7xl group-hover:text-rose-800/40 transition-colors">
-                <i class="fa-regular fa-clock"></i>
-            </div>
-            <div class="relative z-10">
-                <p class="text-xs text-rose-400/70 uppercase tracking-widest font-bold mb-2">Comisiones Pendientes</p>
-                <p class="text-4xl font-black text-rose-400">${{ number_format($comisionesPendientes, 2) }}</p>
-                <div class="flex items-center gap-2 mt-3 text-xs font-bold text-rose-400 bg-rose-500/10 inline-flex px-2.5 py-1 rounded-md border border-rose-500/20">
-                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse inline-block"></span> Fiados por liquidar
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- PRÓXIMAS CITAS RESERVADAS -->
-    <div class="bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-800/60 shadow-xl overflow-hidden mb-10">
-        <div class="px-7 py-5 bg-gradient-to-r from-slate-800/80 to-transparent border-b border-slate-800/60 flex justify-between items-center">
-            <h3 class="font-bold text-white text-sm uppercase tracking-widest flex items-center gap-3">
-                <i class="fa-regular fa-calendar-check text-amber-400 text-base"></i>
-                Mis Próximas Citas Reservadas
+    <!-- CALCULADORA DE COMISIONES EN TIEMPO REAL (NÓMINA SEMANAL EN VIVO) -->
+    <div class="bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-800/60 shadow-xl overflow-hidden">
+        <div class="px-5 py-4 bg-gradient-to-r from-slate-800/80 to-transparent border-b border-slate-800/60">
+            <h3 class="font-bold text-white text-xs uppercase tracking-widest flex items-center gap-2">
+                <i class="fa-solid fa-wallet text-amber-400"></i> Mi Calculadora de Comisión (Esta Semana)
             </h3>
-            <span class="bg-amber-500 text-slate-950 text-xs font-black px-3 py-1.5 rounded-lg shadow-lg shadow-amber-500/20 uppercase tracking-wider">
-                {{ $reservas->count() }} pendientes
-            </span>
+        </div>
+        <div class="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Cortes Realizados -->
+            <div class="bg-slate-950/60 border border-slate-800 p-4 rounded-xl flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+                    <i class="fa-solid fa-cut text-lg"></i>
+                </div>
+                <div>
+                    <span class="text-[9px] text-slate-500 uppercase tracking-widest font-bold block">Cortes Completados</span>
+                    <span class="text-xl font-black text-white">{{ $cortesSemana }}</span>
+                    <span class="text-[8px] text-slate-400 block mt-0.5">Semana en curso</span>
+                </div>
+            </div>
+
+            <!-- Comisiones Acumuladas -->
+            <div class="bg-slate-950/60 border border-slate-800 p-4 rounded-xl flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                    <i class="fa-solid fa-file-invoice-dollar text-lg"></i>
+                </div>
+                <div>
+                    <span class="text-[9px] text-slate-500 uppercase tracking-widest font-bold block">Comisiones Ganadas</span>
+                    <span class="text-xl font-black text-emerald-400">${{ number_format($comisionesCortesSemana + $comisionesProductosSemana, 2) }}</span>
+                    <span class="text-[8px] text-slate-400 block mt-0.5">
+                        Cortes: ${{$comisionesCortesSemana}} | Prod: ${{$comisionesProductosSemana}}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Adelantos Descontados -->
+            <div class="bg-slate-950/60 border border-slate-800 p-4 rounded-xl flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
+                    <i class="fa-solid fa-hand-holding-dollar text-lg"></i>
+                </div>
+                <div>
+                    <span class="text-[9px] text-slate-500 uppercase tracking-widest font-bold block">Adelantos (Vales)</span>
+                    <span class="text-xl font-black text-rose-400">-${{ number_format($adelantosSemana, 2) }}</span>
+                    <span class="text-[8px] text-slate-400 block mt-0.5">Descontables del sábado</span>
+                </div>
+            </div>
+
+            <!-- Pago Neto Estimado -->
+            <div class="bg-amber-500/10 border border-amber-500/30 p-4 rounded-xl flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                    <i class="fa-solid fa-coins text-lg"></i>
+                </div>
+                <div>
+                    <span class="text-[9px] text-amber-500/80 uppercase tracking-widest font-bold block">Neto Estimado Sábado</span>
+                    <span class="text-xl font-black text-amber-400">${{ number_format(max($pagoNetoSemana, 0), 2) }}</span>
+                    <span class="text-[8px] text-amber-500/60 block font-bold mt-0.5">
+                        Bs. {{ number_format(max($pagoNetoSemana, 0) * $tasaBcv, 2) }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN DE CITAS (AGENDA DEL DÍA) -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Columna 1: Mi Agenda de HOY (2/3 width) -->
+        <div class="lg:col-span-2 bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-800/60 shadow-xl overflow-hidden flex flex-col">
+            <div class="px-5 py-4 bg-gradient-to-r from-slate-800/80 to-transparent border-b border-slate-800/60 flex justify-between items-center">
+                <h3 class="font-bold text-white text-xs uppercase tracking-widest flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-day text-amber-400"></i> Mi Agenda para Hoy ({{ date('d/m/Y') }})
+                </h3>
+                <span class="bg-amber-500 text-slate-950 text-[10px] font-black px-2.5 py-1 rounded-md uppercase tracking-wider animate-pulse">
+                    {{ $citasHoy->count() }} citas hoy
+                </span>
+            </div>
+
+            <div class="overflow-x-auto flex-1">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="text-slate-500 uppercase text-[9px] tracking-widest border-b border-slate-800/60">
+                            <th class="px-5 py-3 font-bold">Hora</th>
+                            <th class="px-5 py-3 font-bold">Cliente</th>
+                            <th class="px-5 py-3 font-bold">Servicio</th>
+                            <th class="px-5 py-3 text-right font-bold">Precio</th>
+                            <th class="px-5 py-3 text-center font-bold">Cobro / Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800/50 text-sm">
+                        @forelse($citasHoy as $reserva)
+                            <tr class="hover:bg-amber-500/5 transition-colors">
+                                <td class="px-5 py-3">
+                                    <span class="bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-black px-2.5 py-1 rounded-md font-mono">
+                                        {{ $reserva->fecha_hora->format('h:i A') }}
+                                    </span>
+                                </td>
+                                <td class="px-5 py-3 font-bold text-white">{{ $reserva->cliente->nombre }}</td>
+                                <td class="px-5 py-3">
+                                    <span class="bg-slate-800 border border-slate-700 text-slate-300 text-[11px] px-2 py-1 rounded">
+                                        {{ $reserva->servicio->nombre }}
+                                    </span>
+                                </td>
+                                <td class="px-5 py-3 text-right font-mono font-bold text-slate-300">${{ number_format($reserva->precio, 2) }}</td>
+                                <td class="px-5 py-3 text-center">
+                                    <form action="{{ route('reservas.completar', $reserva->id) }}" method="POST" class="inline-flex gap-2 justify-center items-center">
+                                        @csrf
+                                        <select name="metodo_pago" required
+                                            class="bg-slate-800 border border-slate-700 rounded-lg text-[10px] px-2 py-1.5 focus:ring-1 focus:ring-amber-500 focus:outline-none text-slate-300 cursor-pointer">
+                                            <option value="efectivo_usd">💵 Efectivo $</option>
+                                            <option value="efectivo_bs">💵 Efectivo Bs.</option>
+                                            <option value="transferencia">🏦 Banco</option>
+                                            <option value="fiado">🤝 Fiado</option>
+                                        </select>
+                                        <button type="submit"
+                                            class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg text-[10px] transition cursor-pointer flex items-center gap-1 shadow-lg shadow-emerald-500/20">
+                                            <i class="fa-solid fa-check"></i> Cobrar
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="px-5 py-16 text-center text-slate-500 text-xs">
+                                    <i class="fa-regular fa-calendar-xmark text-3xl mb-3 opacity-20 block"></i>
+                                    No tienes citas programadas para hoy.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="text-slate-500 uppercase text-[10px] tracking-widest border-b border-slate-800/60">
-                        <th class="px-7 py-3 font-bold">Fecha y Hora</th>
-                        <th class="px-7 py-3 font-bold">Cliente</th>
-                        <th class="px-7 py-3 font-bold">Servicio</th>
-                        <th class="px-7 py-3 font-bold">Precio</th>
-                        <th class="px-7 py-3 text-center font-bold">Acción / Cobro</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-800/50 text-sm">
-                    @forelse($reservas as $reserva)
-                        <tr class="hover:bg-amber-500/5 transition-colors group">
-                            <td class="px-7 py-4">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 flex-shrink-0">
-                                        <i class="fa-regular fa-clock text-xs"></i>
-                                    </div>
-                                    <span class="text-xs font-bold text-slate-300">
-                                        {{ $reserva->fecha_hora->format('d/m/Y') }}<br>
-                                        <span class="text-amber-400">{{ $reserva->fecha_hora->format('h:i A') }}</span>
-                                    </span>
-                                </div>
-                            </td>
-                            <td class="px-7 py-4 font-bold text-white">
-                                {{ $reserva->cliente->nombre }}
-                            </td>
-                            <td class="px-7 py-4">
-                                <span class="bg-slate-800 border border-slate-700 text-slate-300 text-xs px-2.5 py-1.5 rounded-md font-medium">
+        <!-- Columna 2: Citas de Próximos Días (1/3 width) -->
+        <div class="lg:col-span-1 bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-800/60 shadow-xl overflow-hidden flex flex-col max-h-[380px]">
+            <div class="px-5 py-4 bg-gradient-to-r from-slate-800/80 to-transparent border-b border-slate-800/60 flex justify-between items-center">
+                <h3 class="font-bold text-white text-xs uppercase tracking-widest flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-days text-blue-400"></i> Próximos Días
+                </h3>
+            </div>
+
+            <div class="p-4 space-y-3 flex-1 overflow-y-auto">
+                @forelse($citasFuturas as $reserva)
+                    <div class="bg-slate-950/40 border border-slate-850 p-3.5 rounded-xl space-y-2 relative">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="font-bold text-white text-xs">{{ $reserva->cliente->nombre }}</p>
+                                <span class="bg-slate-800 border border-slate-700 text-slate-400 text-[9px] px-1.5 py-0.5 rounded inline-block mt-1">
                                     {{ $reserva->servicio->nombre }}
                                 </span>
-                            </td>
-                            <td class="px-7 py-4 font-black text-white text-base">
-                                ${{ number_format($reserva->precio, 2) }}
-                            </td>
-                            <td class="px-7 py-4 text-center">
-                                <form action="{{ route('reservas.completar', $reserva->id) }}" method="POST" class="inline-flex gap-2 justify-center items-center">
-                                    @csrf
-                                    <select name="metodo_pago" required
-                                        class="bg-slate-800 border border-slate-700 rounded-lg text-xs px-2.5 py-2 focus:ring-1 focus:ring-amber-500 focus:outline-none text-slate-300 cursor-pointer">
-                                        <option value="efectivo">💵 Efectivo</option>
-                                        <option value="transferencia">🏦 Banco</option>
-                                        <option value="fiado">🤝 Fiado</option>
-                                    </select>
-                                    <button type="submit"
-                                        class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition cursor-pointer flex items-center gap-1.5 shadow-lg shadow-emerald-500/20">
-                                        <i class="fa-solid fa-check"></i> Completar
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="px-7 py-14 text-center text-slate-500 text-sm">
-                                <i class="fa-regular fa-calendar-xmark text-3xl mb-3 opacity-20 block"></i>
-                                No tienes citas programadas por el momento.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                            </div>
+                            <div class="text-right">
+                                <span class="bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black px-2 py-0.5 rounded font-mono block mb-1">
+                                    {{ $reserva->fecha_hora->format('d/m') }}
+                                </span>
+                                <span class="text-[10px] text-slate-400 font-bold block">{{ $reserva->fecha_hora->format('h:i A') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="py-12 text-center text-slate-500 text-xs">
+                        <i class="fa-solid fa-calendar-days text-2xl mb-2 opacity-20 block"></i>
+                        No hay citas reservadas en los próximos días.
+                    </div>
+                @endforelse
+            </div>
         </div>
     </div>
 
-    <!-- CORTES Y CLIENTES -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- HISTORIAL DE CORTES REALIZADOS Y CLIENTES -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         <!-- Historial de Cortes -->
         <div class="bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-800/60 shadow-lg overflow-hidden">
@@ -174,7 +223,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="text-slate-500 uppercase text-[10px] tracking-widest border-b border-slate-800/60">
+                        <tr class="text-slate-500 uppercase text-[9px] tracking-widest border-b border-slate-800/60">
                             <th class="px-6 py-3 font-bold">Fecha</th>
                             <th class="px-6 py-3 font-bold">Cliente</th>
                             <th class="px-6 py-3 font-bold">Servicio</th>
@@ -196,11 +245,14 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-right">
+                                    @php
+                                        $porcentaje = $corte->barbero->porcentaje_comision !== null ? $corte->barbero->porcentaje_comision : ($barberia->porcentaje_barbero ?? 60);
+                                    @endphp
                                     @if($corte->estado === 'fiado')
-                                        <span class="text-rose-400 text-sm font-bold">${{ number_format($corte->precio * 0.60, 2) }}</span>
+                                        <span class="text-rose-400 text-sm font-bold">${{ number_format($corte->precio * ($porcentaje / 100), 2) }}</span>
                                         <span class="text-[10px] text-rose-500/60 block font-semibold">Fiado</span>
                                     @else
-                                        <span class="text-emerald-400 font-black text-sm">${{ number_format($corte->precio * 0.60, 2) }}</span>
+                                        <span class="text-emerald-400 font-black text-sm">${{ number_format($corte->precio * ($porcentaje / 100), 2) }}</span>
                                     @endif
                                 </td>
                             </tr>
@@ -227,7 +279,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="text-slate-500 uppercase text-[10px] tracking-widest border-b border-slate-800/60">
+                        <tr class="text-slate-500 uppercase text-[9px] tracking-widest border-b border-slate-800/60">
                             <th class="px-6 py-3 font-bold">Cliente</th>
                             <th class="px-6 py-3 text-center font-bold">Visitas</th>
                             <th class="px-6 py-3 text-right font-bold">Última Visita</th>

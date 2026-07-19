@@ -455,23 +455,54 @@ class ReporteController extends Controller
             ->orderBy('fecha_hora', 'desc')
             ->get();
 
-        // 2. Próximas citas / Reservas pendientes asignadas a este barbero (fecha posterior o igual a hoy)
-        $reservas = Corte::with(['servicio', 'cliente'])
+        // 2. Próximas citas / Reservas pendientes asignadas a este barbero (Hoy vs Futuras)
+        $citasHoy = Corte::with(['servicio', 'cliente'])
             ->where('barbero_id', $user->id)
             ->where('estado', 'pendiente')
+            ->whereDate('fecha_hora', Carbon::today())
             ->orderBy('fecha_hora', 'asc')
             ->get();
 
-        // 3. Cálculo de comisiones (cobrados vs. pendientes)
-        $comisionesCobradas = Comision::where('barbero_id', $user->id)
+        $citasFuturas = Corte::with(['servicio', 'cliente'])
+            ->where('barbero_id', $user->id)
+            ->where('estado', 'pendiente')
+            ->whereDate('fecha_hora', '>', Carbon::today())
+            ->orderBy('fecha_hora', 'asc')
+            ->get();
+
+        // 3. Cálculo de comisiones en tiempo real (Semana en curso - Lunes a Domingo)
+        $fechaInicioSemana = Carbon::now()->startOfWeek();
+        $fechaFinSemana = Carbon::now()->endOfWeek();
+
+        // Comisiones de Cortes de esta semana (solo cobrados)
+        $comisionesCortesSemana = Comision::where('barbero_id', $user->id)
+            ->whereBetween('created_at', [$fechaInicioSemana, $fechaFinSemana])
             ->whereHas('corte', fn($q) => $q->where('pago_completado', true))
             ->sum('monto_barbero');
 
+        // Comisiones de Productos de esta semana
+        $comisionesProductosSemana = \App\Models\VentaProducto::where('barbero_id', $user->id)
+            ->whereBetween('created_at', [$fechaInicioSemana, $fechaFinSemana])
+            ->sum('comision_barbero');
+
+        // Adelantos de esta semana activos (no descontados aún)
+        $adelantosSemana = \App\Models\Adelanto::where('barbero_id', $user->id)
+            ->where('descontado', false)
+            ->sum('monto');
+
+        // Total de cortes completados esta semana
+        $cortesSemana = Corte::where('barbero_id', $user->id)
+            ->whereBetween('fecha_hora', [$fechaInicioSemana, $fechaFinSemana])
+            ->where('pago_completado', true)
+            ->count();
+
+        // Pago Neto Estimado
+        $pagoNetoSemana = ($comisionesCortesSemana + $comisionesProductosSemana) - $adelantosSemana;
+
+        // Comisiones pendientes (Fiados por liquidar)
         $comisionesPendientes = Comision::where('barbero_id', $user->id)
             ->whereHas('corte', fn($q) => $q->where('pago_completado', false)->where('estado', 'fiado'))
             ->sum('monto_barbero');
-
-        $totalCortesContados = $cortes->count();
 
         // 4. Clientes asociados
         $clientesAsociados = Cliente::whereHas('cortes', function ($q) use ($user) {
@@ -494,11 +525,16 @@ class ReporteController extends Controller
 
         return view('barbero.dashboard', compact(
             'cortes',
-            'reservas',
-            'comisionesCobradas',
+            'citasHoy',
+            'citasFuturas',
+            'comisionesCortesSemana',
+            'comisionesProductosSemana',
+            'adelantosSemana',
+            'cortesSemana',
+            'pagoNetoSemana',
             'comisionesPendientes',
-            'totalCortesContados',
-            'clientesAsociados'
+            'clientesAsociados',
+            'barberia'
         ));
     }
     public function descargarReporte()
