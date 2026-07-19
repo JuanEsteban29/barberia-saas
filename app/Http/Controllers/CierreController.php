@@ -90,7 +90,10 @@ class CierreController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'notas' => 'nullable|string|max:500',
+            'notas'                   => 'nullable|string|max:500',
+            'efectivo_usd_contado'    => 'nullable|numeric|min:0',
+            'efectivo_bs_contado'     => 'nullable|numeric|min:0',
+            'transferencia_contado'   => 'nullable|numeric|min:0',
         ]);
 
         $barberia = $this->obtenerBarberiaActiva();
@@ -105,7 +108,7 @@ class CierreController extends Controller
                 ->with('error', "Ya existe un cierre de caja registrado para el día de hoy.");
         }
 
-        $citasElegibles = Corte::with('servicio')
+        $citasElegibles = Corte::with(['servicio', 'barbero', 'cliente'])
             ->where('barberia_id', $barberia->id)
             ->where('pago_completado', true)
             ->sinCerrar()
@@ -121,28 +124,103 @@ class CierreController extends Controller
         $totalEfectivoLegacy = $citasElegibles->where('metodo_pago', 'efectivo')->sum('precio');
         $totalEfectivo       = $totalEfectivoUsd + $totalEfectivoBs + $totalEfectivoLegacy;
 
-        $totalTransferencia  = $citasElegibles->where('metodo_pago', 'transferencia')->sum('precio');
-        $totalIngresos       = $totalEfectivo + $totalTransferencia;
+        $totalTransferencia = $citasElegibles->where('metodo_pago', 'transferencia')->sum('precio');
+        $totalIngresos      = $totalEfectivo + $totalTransferencia;
 
         $totalFiado = Corte::where('barberia_id', $barberia->id)
             ->where('estado', 'fiado')
             ->where('pago_completado', false)
             ->sum('precio');
 
+        // --- Calcular diferencias de cuadre si se proporcionaron conteos físicos ---
+        $efectivoUsdContado  = $request->filled('efectivo_usd_contado') ? (float)$request->efectivo_usd_contado : null;
+        $efectivoBsContado   = $request->filled('efectivo_bs_contado')  ? (float)$request->efectivo_bs_contado  : null;
+        $transferenciaContado = $request->filled('transferencia_contado') ? (float)$request->transferencia_contado : null;
+
+        $diferencias = [];
+        if ($efectivoUsdContado !== null) {
+            $esperado = $totalEfectivoUsd + $totalEfectivoLegacy;
+            $diff = $efectivoUsdContado - $esperado;
+            if (abs($diff) > 0.005) {
+                $diferencias[] = [
+                    'metodo'   => 'Efectivo USD ($)',
+                    'esperado' => $esperado,
+                    'contado'  => $efectivoUsdContado,
+                    'diff'     => $diff,
+                    'sospechosos' => $citasElegibles
+                        ->whereIn('metodo_pago', ['efectivo_usd', 'efectivo'])
+                        ->sortByDesc('precio')
+                        ->take(3)
+                        ->map(fn($c) => [
+                            'cliente' => $c->cliente->nombre ?? 'General',
+                            'barbero' => $c->barbero->name ?? 'N/A',
+                            'hora'    => $c->fecha_hora->format('H:i'),
+                            'monto'   => $c->precio,
+                        ])->values()->toArray(),
+                ];
+            }
+        }
+        if ($efectivoBsContado !== null) {
+            $diff = $efectivoBsContado - $totalEfectivoBs;
+            if (abs($diff) > 0.005) {
+                $diferencias[] = [
+                    'metodo'   => 'Efectivo Bs.',
+                    'esperado' => $totalEfectivoBs,
+                    'contado'  => $efectivoBsContado,
+                    'diff'     => $diff,
+                    'sospechosos' => $citasElegibles
+                        ->where('metodo_pago', 'efectivo_bs')
+                        ->sortByDesc('precio')
+                        ->take(3)
+                        ->map(fn($c) => [
+                            'cliente' => $c->cliente->nombre ?? 'General',
+                            'barbero' => $c->barbero->name ?? 'N/A',
+                            'hora'    => $c->fecha_hora->format('H:i'),
+                            'monto'   => $c->precio,
+                        ])->values()->toArray(),
+                ];
+            }
+        }
+        if ($transferenciaContado !== null) {
+            $diff = $transferenciaContado - $totalTransferencia;
+            if (abs($diff) > 0.005) {
+                $diferencias[] = [
+                    'metodo'   => 'Banco / Transferencia',
+                    'esperado' => $totalTransferencia,
+                    'contado'  => $transferenciaContado,
+                    'diff'     => $diff,
+                    'sospechosos' => $citasElegibles
+                        ->where('metodo_pago', 'transferencia')
+                        ->sortByDesc('precio')
+                        ->take(3)
+                        ->map(fn($c) => [
+                            'cliente' => $c->cliente->nombre ?? 'General',
+                            'barbero' => $c->barbero->name ?? 'N/A',
+                            'hora'    => $c->fecha_hora->format('H:i'),
+                            'monto'   => $c->precio,
+                        ])->values()->toArray(),
+                ];
+            }
+        }
+
         DB::transaction(function () use (
             $barberia, $hoy, $citasElegibles,
             $totalEfectivo, $totalTransferencia, $totalIngresos, $totalFiado,
+            $efectivoUsdContado, $efectivoBsContado, $transferenciaContado,
             $request
         ) {
             $cierre = CierreDiario::create([
-                'barberia_id'         => $barberia->id,
-                'fecha'               => $hoy,
-                'total_citas'         => $citasElegibles->count(),
-                'total_efectivo'      => $totalEfectivo,
-                'total_transferencia' => $totalTransferencia,
-                'total_ingresos'      => $totalIngresos,
-                'total_fiado'         => $totalFiado,
-                'notas'               => $request->notas,
+                'barberia_id'          => $barberia->id,
+                'fecha'                => $hoy,
+                'total_citas'          => $citasElegibles->count(),
+                'total_efectivo'       => $totalEfectivo,
+                'total_transferencia'  => $totalTransferencia,
+                'total_ingresos'       => $totalIngresos,
+                'total_fiado'          => $totalFiado,
+                'notas'                => $request->notas,
+                'efectivo_usd_contado' => $efectivoUsdContado,
+                'efectivo_bs_contado'  => $efectivoBsContado,
+                'transferencia_contado'=> $transferenciaContado,
             ]);
 
             Corte::whereIn('id', $citasElegibles->pluck('id'))
@@ -152,7 +230,13 @@ class CierreController extends Controller
                 ]);
         });
 
+        $successMsg = "✅ Cierre de caja completado exitosamente.";
+        if (!empty($diferencias)) {
+            $successMsg .= " ⚠️ Se detectaron descuadres en " . count($diferencias) . " método(s) de pago.";
+        }
+
         return redirect()->route('cierre.index')
-            ->with('success', "Cierre de caja completado exitosamente.");
+            ->with('success', $successMsg)
+            ->with('diferencias_cuadre', $diferencias);
     }
 }

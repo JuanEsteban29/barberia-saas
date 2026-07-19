@@ -16,6 +16,9 @@ class CierreDiario extends Model
         'total_ingresos',
         'total_fiado',
         'notas',
+        'efectivo_usd_contado',
+        'efectivo_bs_contado',
+        'transferencia_contado',
     ];
 
     protected $casts = [

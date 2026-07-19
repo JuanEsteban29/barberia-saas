@@ -39,6 +39,65 @@
         </div>
     @endif
 
+    {{-- 🔍 Panel de Inteligencia de Cuadre (si hay diferencias post-cierre) --}}
+    @if(session('diferencias_cuadre') && count(session('diferencias_cuadre')) > 0)
+    <div class="bg-gradient-to-br from-rose-950/60 to-slate-900/80 border border-rose-500/30 rounded-2xl shadow-xl overflow-hidden">
+        <div class="px-7 py-5 border-b border-rose-500/20 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center flex-shrink-0">
+                <i class="fa-solid fa-magnifying-glass-dollar text-rose-400"></i>
+            </div>
+            <div>
+                <h3 class="font-black text-white text-sm">🔍 Asistente de Cuadre de Caja</h3>
+                <p class="text-rose-400/70 text-xs">Se detectaron diferencias entre el conteo físico y el sistema. Aquí están los posibles sospechosos.</p>
+            </div>
+        </div>
+        <div class="p-6 space-y-5">
+            @foreach(session('diferencias_cuadre') as $dif)
+            <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-5 space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <span class="font-black text-white text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-scale-unbalanced text-rose-400"></i>
+                        {{ $dif['metodo'] }}
+                    </span>
+                    <div class="flex items-center gap-3 text-xs font-bold">
+                        <span class="text-slate-400">Sistema: <span class="text-white">${{ number_format($dif['esperado'], 2) }}</span></span>
+                        <span class="text-slate-600">vs</span>
+                        <span class="text-slate-400">Contado: <span class="text-amber-400">${{ number_format($dif['contado'], 2) }}</span></span>
+                        <span class="px-2 py-1 rounded-lg font-black text-xs {{ $dif['diff'] < 0 ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' }}">
+                            {{ $dif['diff'] > 0 ? '+' : '' }}${{ number_format($dif['diff'], 2) }}
+                        </span>
+                    </div>
+                </div>
+                @if(count($dif['sospechosos']) > 0)
+                <div>
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-info text-amber-400/60"></i>
+                        Servicios de mayor valor que podrían revisar:
+                    </p>
+                    <div class="space-y-1.5">
+                        @foreach($dif['sospechosos'] as $s)
+                        <div class="flex items-center justify-between bg-slate-900/60 px-4 py-2.5 rounded-lg text-xs">
+                            <div class="flex items-center gap-3">
+                                <span class="w-6 h-6 rounded bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400">
+                                    <i class="fa-solid fa-clock text-[9px]"></i>
+                                </span>
+                                <div>
+                                    <span class="font-bold text-white">{{ $s['cliente'] }}</span>
+                                    <span class="text-slate-500 ml-2">{{ $s['barbero'] }} · {{ $s['hora'] }}</span>
+                                </div>
+                            </div>
+                            <span class="font-black text-white">${{ number_format($s['monto'], 2) }}</span>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+            </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
     {{-- Banner Tasa BCV del Día --}}
     <div class="flex items-center gap-3 px-4 py-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-400 text-sm font-bold">
         <i class="fa-solid fa-money-bill-transfer text-base"></i>
@@ -365,6 +424,44 @@
 
             <form action="{{ route('cierre.store') }}" method="POST" class="space-y-5">
                 @csrf
+
+                {{-- Conteo Físico de Caja --}}
+                <div class="space-y-3">
+                    <p class="text-xs font-black text-slate-300 uppercase tracking-widest flex items-center gap-2">
+                        <i class="fa-solid fa-magnifying-glass-dollar text-amber-400"></i>
+                        Conteo Físico (Opcional — para detectar descuadres)
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-bold text-emerald-400 uppercase mb-1.5 tracking-wider">Efectivo USD contado</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500 text-xs">$</span>
+                                <input type="number" name="efectivo_usd_contado" min="0" step="0.01" placeholder="0.00"
+                                    class="w-full bg-slate-950/80 border border-emerald-900/40 rounded-lg py-2.5 pl-6 pr-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 transition placeholder-slate-700">
+                            </div>
+                            <p class="text-[10px] text-slate-600 mt-1">Sistema: ${{ number_format($totalEfectivoUsd + $totalEfectivoLegacy, 2) }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-amber-400 uppercase mb-1.5 tracking-wider">Efectivo Bs. contado ($)</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500 text-xs">$</span>
+                                <input type="number" name="efectivo_bs_contado" min="0" step="0.01" placeholder="0.00"
+                                    class="w-full bg-slate-950/80 border border-amber-900/40 rounded-lg py-2.5 pl-6 pr-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/40 transition placeholder-slate-700">
+                            </div>
+                            <p class="text-[10px] text-slate-600 mt-1">Sistema: ${{ number_format($totalEfectivoBs, 2) }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-blue-400 uppercase mb-1.5 tracking-wider">Banco / Trans. contado ($)</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500 text-xs">$</span>
+                                <input type="number" name="transferencia_contado" min="0" step="0.01" placeholder="0.00"
+                                    class="w-full bg-slate-950/80 border border-blue-900/40 rounded-lg py-2.5 pl-6 pr-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 transition placeholder-slate-700">
+                            </div>
+                            <p class="text-[10px] text-slate-600 mt-1">Sistema: ${{ number_format($totalTransferencia, 2) }}</p>
+                        </div>
+                    </div>
+                </div>
+
                 <div>
                     <label class="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-wider">Notas del Cierre (Opcional)</label>
                     <textarea name="notas" rows="2" placeholder="Ej: Día tranquilo, feriado, novedad de caja..."
