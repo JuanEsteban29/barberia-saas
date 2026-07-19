@@ -213,58 +213,62 @@ class ReporteController extends Controller
      * Vista de registro e historial de cortes.
      */
     public function vistaCortes()
-{
-    $barberia = $this->obtenerBarberiaActiva();
-    
-    $historialCortes = Corte::with(['servicio', 'barbero', 'cliente'])
-        ->where('barberia_id', $barberia->id)
-        ->orderBy('fecha_hora', 'desc')
-        ->get();
-            
-    $barberosDisponibles = User::where('barberia_id', $barberia->id)
-        ->whereIn('role', ['admin', 'barbero'])
-        ->get();
-            
-    // Aseguramos que esta variable siempre exista
-    $serviciosDisponibles = \App\Models\Servicio::all();
-
-    // Definimos las variables de dinero explícitamente con efectivo dividido
-    $dineroEfectivoUsd = Corte::where('barberia_id', $barberia->id)
-        ->where('metodo_pago', 'efectivo_usd')
-        ->where('pago_completado', true)
-        ->sum('precio');
-
-    $dineroEfectivoBs = Corte::where('barberia_id', $barberia->id)
-        ->where('metodo_pago', 'efectivo_bs')
-        ->where('pago_completado', true)
-        ->sum('precio');
-
-    $dineroEfectivoLegacy = Corte::where('barberia_id', $barberia->id)
-        ->where('metodo_pago', 'efectivo')
-        ->where('pago_completado', true)
-        ->sum('precio');
-
-    $dineroEfectivo = $dineroEfectivoUsd + $dineroEfectivoBs + $dineroEfectivoLegacy;
+    {
+        $barberia = $this->obtenerBarberiaActiva();
         
-    $dineroTransferencia = Corte::where('barberia_id', $barberia->id)
-        ->where('metodo_pago', 'transferencia')
-        ->where('pago_completado', true)
-        ->sum('precio');
-        
-    $totalRecaudado = $dineroEfectivo + $dineroTransferencia;
+        $historialCortes = Corte::with(['servicio', 'barbero', 'cliente'])
+            ->where('barberia_id', $barberia->id)
+            ->orderBy('fecha_hora', 'desc')
+            ->get();
+                
+        $barberosDisponibles = User::where('barberia_id', $barberia->id)
+            ->whereIn('role', ['admin', 'barbero'])
+            ->get();
+                
+        // Aseguramos que esta variable siempre exista
+        $serviciosDisponibles = \App\Models\Servicio::all();
 
-    return view('cortes.index', compact(
-        'historialCortes', 
-        'barberosDisponibles', 
-        'serviciosDisponibles', 
-        'dineroEfectivo', 
-        'dineroEfectivoUsd', 
-        'dineroEfectivoBs', 
-        'dineroEfectivoLegacy', 
-        'dineroTransferencia', 
-        'totalRecaudado'
-    ));
-}
+        // Tasa BCV para conversión en la vista
+        $tasaBcv = $barberia->tasa_bcv ?? 1;
+
+        // Definimos las variables de dinero explícitamente con efectivo dividido
+        $dineroEfectivoUsd = Corte::where('barberia_id', $barberia->id)
+            ->where('metodo_pago', 'efectivo_usd')
+            ->where('pago_completado', true)
+            ->sum('precio');
+
+        $dineroEfectivoBs = Corte::where('barberia_id', $barberia->id)
+            ->where('metodo_pago', 'efectivo_bs')
+            ->where('pago_completado', true)
+            ->sum('precio');
+
+        $dineroEfectivoLegacy = Corte::where('barberia_id', $barberia->id)
+            ->where('metodo_pago', 'efectivo')
+            ->where('pago_completado', true)
+            ->sum('precio');
+
+        $dineroEfectivo = $dineroEfectivoUsd + $dineroEfectivoBs + $dineroEfectivoLegacy;
+            
+        $dineroTransferencia = Corte::where('barberia_id', $barberia->id)
+            ->where('metodo_pago', 'transferencia')
+            ->where('pago_completado', true)
+            ->sum('precio');
+            
+        $totalRecaudado = $dineroEfectivo + $dineroTransferencia;
+
+        return view('cortes.index', compact(
+            'historialCortes', 
+            'barberosDisponibles', 
+            'serviciosDisponibles', 
+            'dineroEfectivo', 
+            'dineroEfectivoUsd', 
+            'dineroEfectivoBs', 
+            'dineroEfectivoLegacy', 
+            'dineroTransferencia', 
+            'totalRecaudado',
+            'tasaBcv'
+        ));
+    }
 
     /**
      * Vista de barberos y su nómina actual.
