@@ -46,6 +46,7 @@ class BarberiaController extends Controller
             'porcentaje_barbero' => 'required|integer|between:0,100',
             'tasa_bcv_modo'      => 'required|in:auto,manual',
             'tasa_bcv_manual'    => 'nullable|numeric|min:0',
+            'logo'               => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
         $barberia = Barberia::firstOrCreate(
@@ -53,12 +54,27 @@ class BarberiaController extends Controller
             ['nombre' => 'Mi Barbería Profesional', 'porcentaje_barbero' => 60, 'tasa_bcv_modo' => 'auto']
         );
 
-        $barberia->update([
+        $data = [
             'nombre'             => $request->nombre,
             'porcentaje_barbero' => $request->porcentaje_barbero,
             'tasa_bcv_modo'      => $request->tasa_bcv_modo,
             'tasa_bcv_manual'    => $request->tasa_bcv_manual,
-        ]);
+        ];
+
+        if ($request->hasFile('logo')) {
+            $image = $request->file('logo');
+            $name = time().'_logo.'.$image->getClientOriginalExtension();
+            $destinationPath = public_path('/uploads/logos');
+            
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+            
+            $image->move($destinationPath, $name);
+            $data['logo'] = '/uploads/logos/' . $name;
+        }
+
+        $barberia->update($data);
 
         // Olvidar el caché para forzar la actualización inmediata de la tasa en el sistema
         \Illuminate\Support\Facades\Cache::forget('tasa_bcv_dia');

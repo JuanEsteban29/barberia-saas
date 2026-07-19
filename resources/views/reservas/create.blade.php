@@ -172,9 +172,13 @@
     <div style="background: rgba(9,9,11,.95); border-bottom: 1px solid rgba(255,255,255,.05); backdrop-filter: blur(20px);" class="sticky top-0 z-50">
         <div class="max-w-2xl mx-auto px-5 py-4 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div style="width:36px;height:36px;background:linear-gradient(135deg,#f5a623,#d4891a);border-radius:10px;display:flex;align-items:center;justify-content:center;">
-                    <i class="fa-solid fa-scissors" style="color:#000;font-size:15px;"></i>
-                </div>
+                @if($barberia->logo)
+                    <img src="{{ $barberia->logo }}" alt="Logo" style="width:36px;height:36px;object-fit:contain;border-radius:10px;border:1px solid rgba(255,255,255,.08);">
+                @else
+                    <div style="width:36px;height:36px;background:linear-gradient(135deg,#f5a623,#d4891a);border-radius:10px;display:flex;align-items:center;justify-content:center;">
+                        <i class="fa-solid fa-scissors" style="color:#000;font-size:15px;"></i>
+                    </div>
+                @endif
                 <div>
                     <p class="font-black text-white text-sm leading-none">{{ $barberia->nombre }}</p>
                     <p style="font-size:10px;color:#71717a;font-weight:600;letter-spacing:.08em;text-transform:uppercase;" class="mt-0.5">Reserva tu cita</p>

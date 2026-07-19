@@ -79,9 +79,13 @@
 
         <!-- Logo -->
         <div class="p-6 border-b flex items-center space-x-3" style="border-color:rgba(245,166,35,.12);">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg" style="background:linear-gradient(135deg,#f5a623,#d4891a);box-shadow:0 4px 20px rgba(245,166,35,.3);">
-                <i class="fa-solid fa-scissors text-black text-lg"></i>
-            </div>
+            @if(auth()->check() && auth()->user()->barberia && auth()->user()->barberia->logo)
+                <img src="{{ auth()->user()->barberia->logo }}" alt="Logo" class="w-10 h-10 object-contain rounded-xl border border-slate-800 shadow-lg">
+            @else
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg" style="background:linear-gradient(135deg,#f5a623,#d4891a);box-shadow:0 4px 20px rgba(245,166,35,.3);">
+                    <i class="fa-solid fa-scissors text-black text-lg"></i>
+                </div>
+            @endif
             <div>
                 <h2 class="text-xl font-black tracking-widest text-white leading-none">BARBER<span style="color:#f5a623;">ERP</span></h2>
                 <p class="text-[10px] uppercase tracking-widest font-semibold mt-1" style="color:#52525b;">Premium &bull; Black & Gold</p>

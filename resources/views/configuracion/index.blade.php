@@ -20,7 +20,7 @@
     @endif
 
     <div class="max-w-3xl">
-        <form action="{{ route('barberia.configuracion.update') }}" method="POST" class="space-y-6">
+        <form action="{{ route('barberia.configuracion.update') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
             @csrf
 
             <!-- Card: Datos del Negocio -->
@@ -33,7 +33,7 @@
                 </div>
 
                 <div class="p-6 space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-wider">Nombre del Negocio</label>
                             <div class="relative">
@@ -51,6 +51,28 @@
                                     class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition">
                             </div>
                             <p class="text-[10px] text-slate-500 mt-1">Este porcentaje se aplicará a todos los barberos que no tengan configurado un porcentaje individual.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center border-t border-slate-800/60 pt-4 mb-4">
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-wider">Logo de la Barbería</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500"><i class="fa-solid fa-image text-sm"></i></span>
+                                <input type="file" name="logo" accept="image/*"
+                                    class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition file:mr-4 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-[10px] file:font-black file:bg-amber-500 file:text-black hover:file:bg-amber-400 cursor-pointer">
+                            </div>
+                            <p class="text-[10px] text-slate-500 mt-1">Sube una imagen cuadrada de preferencia (JPG, PNG, máx. 2MB).</p>
+                        </div>
+                        <div class="flex flex-col items-center justify-center p-3 border border-slate-800 rounded-xl bg-slate-950/40 min-h-[90px]">
+                            <p class="text-[9px] text-slate-500 uppercase tracking-wider mb-2">Logo Actual</p>
+                            @if($barberia->logo)
+                                <img src="{{ $barberia->logo }}" alt="Logo" class="w-12 h-12 object-contain rounded-lg border border-slate-800">
+                            @else
+                                <div class="w-12 h-12 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                                    <i class="fa-solid fa-scissors text-amber-500 text-base"></i>
+                                </div>
+                            @endif
                         </div>
                     </div>
 
