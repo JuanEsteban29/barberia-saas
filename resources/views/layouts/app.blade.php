@@ -275,6 +275,7 @@
                     <p class="text-[9px] md:text-xs text-slate-400 hidden sm:block" id="live-time">Cargando...</p>
                 </div>
             </div>
+        </header>
 
         <!-- Dynamic Content -->
 
