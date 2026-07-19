@@ -28,7 +28,7 @@ class CierreController extends Controller
         $barberia = $this->obtenerBarberiaActiva();
 
         // Cortes cobrados que aún no han sido procesados en ningún cierre
-        $citasPendientesCierre = Corte::with(['servicio', 'barbero', 'cliente'])
+        $citasPendientesCierre = Corte::with(['servicio', 'barbero', 'cliente', 'comision'])
             ->where('barberia_id', $barberia->id)
             ->where('pago_completado', true)
             ->sinCerrar()
@@ -54,8 +54,13 @@ class CierreController extends Controller
         $gastosPendientes = Gasto::where('barberia_id', $barberia->id)->get();
         $totalGastos      = $gastosPendientes->sum('monto');
 
-        // Neto real = ingresos cobrados - gastos operativos
-        $netoReal = $totalIngresos - $totalGastos;
+        // Sumar comisiones de las citas a cerrar
+        $totalComisiones = $citasPendientesCierre->sum(function ($cita) {
+            return $cita->comision ? $cita->comision->monto_barbero : 0;
+        });
+
+        // Neto real = ingresos cobrados - gastos operativos - comisiones barberos
+        $netoReal = $totalIngresos - $totalGastos - $totalComisiones;
 
         // Historial de los últimos 7 cierres
         $historialCierres = CierreDiario::where('barberia_id', $barberia->id)
@@ -73,6 +78,7 @@ class CierreController extends Controller
             'totalIngresos',
             'totalFiado',
             'totalGastos',
+            'totalComisiones',
             'netoReal',
             'historialCierres'
         ));

@@ -285,15 +285,16 @@ class ReporteController extends Controller
         
         $totalBruto = $cortes->sum('precio');
         $totalGastos = $gastosSemanales->sum('monto');
-        $gananciaNeta = $totalBruto - $totalGastos;
         
-        $dineroEfectivo = $cortes->where('metodo_pago', 'efectivo')->sum('precio');
+        $dineroEfectivo = $cortes->whereIn('metodo_pago', ['efectivo', 'efectivo_usd', 'efectivo_bs'])->sum('precio');
         $dineroTransferencia = $cortes->where('metodo_pago', 'transferencia')->sum('precio');
 
         // Sumatoria de todas las comisiones calculadas de cortes pagados
         $totalComisiones = Comision::whereHas('corte', function($q) use ($barberia) {
             $q->where('barberia_id', $barberia->id)->where('pago_completado', true);
         })->sum('monto_barbero');
+
+        $gananciaNeta = $totalBruto - $totalGastos - $totalComisiones;
 
         return view('finanzas.index', compact(
             'totalBruto', 

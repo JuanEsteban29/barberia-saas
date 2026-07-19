@@ -110,10 +110,14 @@
                 <i class="fa-solid fa-vault"></i>
             </div>
             <div class="relative z-10">
-                <p class="text-xs uppercase tracking-widest font-bold mb-3 {{ $netoReal >= 0 ? 'text-amber-400/70' : 'text-rose-400/70' }}">Neto Real</p>
+                <p class="text-[10px] uppercase tracking-widest font-bold mb-3 {{ $netoReal >= 0 ? 'text-amber-400/70' : 'text-rose-400/70' }}">Neto Real (Negocio)</p>
                 <p class="text-2xl font-black {{ $netoReal >= 0 ? 'text-amber-400' : 'text-rose-400' }}">${{ number_format($netoReal, 2) }}</p>
                 <p class="text-[10px] font-bold mt-0.5 {{ $netoReal >= 0 ? 'text-amber-500/60' : 'text-rose-500/60' }}">Bs. {{ number_format($netoReal * $tasaBcv, 2) }}</p>
-                <p class="text-[10px] text-slate-500 mt-1 font-semibold uppercase">Ingresos - Gastos</p>
+                <div class="mt-2 pt-2 border-t border-slate-800/50 text-[9px] text-slate-500 space-y-0.5">
+                    <p class="flex justify-between"><span>Ingresos Brutos:</span> <span class="text-slate-300 font-bold">${{ number_format($totalIngresos, 2) }}</span></p>
+                    <p class="flex justify-between"><span>Comisiones:</span> <span class="text-blue-400 font-bold">-${{ number_format($totalComisiones, 2) }}</span></p>
+                    <p class="flex justify-between"><span>Gastos:</span> <span class="text-rose-400 font-bold">-${{ number_format($totalGastos, 2) }}</span></p>
+                </div>
             </div>
         </div>
     </div>
