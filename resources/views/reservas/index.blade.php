@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
+<style>[x-cloak] { display: none !important; }</style>
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
 <div class="animate-fade-in-up space-y-5" x-data="{
     activeTab: 'pendientes',
     showCobroModal: false,
