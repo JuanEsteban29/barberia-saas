@@ -63,15 +63,9 @@ class BarberiaController extends Controller
 
         if ($request->hasFile('logo')) {
             $image = $request->file('logo');
-            $name = time().'_logo.'.$image->getClientOriginalExtension();
-            $destinationPath = public_path('/uploads/logos');
-            
-            if (!file_exists($destinationPath)) {
-                mkdir($destinationPath, 0755, true);
-            }
-            
-            $image->move($destinationPath, $name);
-            $data['logo'] = '/uploads/logos/' . $name;
+            $imageData = base64_encode(file_get_contents($image->getRealPath()));
+            $mimeType = $image->getClientMimeType();
+            $data['logo'] = 'data:' . $mimeType . ';base64,' . $imageData;
         }
 
         $barberia->update($data);
