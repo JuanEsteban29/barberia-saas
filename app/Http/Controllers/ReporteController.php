@@ -276,16 +276,28 @@ class ReporteController extends Controller
             ->whereIn('role', ['admin', 'barbero'])
             ->get();
         
+        $fechaInicioSemana = Carbon::now()->startOfWeek();
+        $fechaFinSemana = Carbon::now()->endOfWeek();
+        
         $nominaSabado = [];
         foreach ($barberos as $barbero) {
             $totalProducido = Corte::where('barbero_id', $barbero->id)
+                ->whereBetween('fecha_hora', [$fechaInicioSemana, $fechaFinSemana])
                 ->where('pago_completado', true)
                 ->sum('precio');
 
-            // Las comisiones se traen de la tabla comisiones para cortes pagados
-            $suComision = Comision::where('barbero_id', $barbero->id)
+            // Las comisiones se traen de la tabla comisiones para cortes pagados esta semana
+            $suComisionCortes = Comision::where('barbero_id', $barbero->id)
+                ->whereBetween('created_at', [$fechaInicioSemana, $fechaFinSemana])
                 ->whereHas('corte', fn($q) => $q->where('pago_completado', true))
                 ->sum('monto_barbero');
+
+            // Comisiones de productos recomendados esta semana
+            $suComisionProductos = \App\Models\VentaProducto::where('barbero_id', $barbero->id)
+                ->whereBetween('created_at', [$fechaInicioSemana, $fechaFinSemana])
+                ->sum('comision_barbero');
+
+            $suComision = $suComisionCortes + $suComisionProductos;
 
             $descuentoAdelantos = Adelanto::where('barbero_id', $barbero->id)
                 ->where('descontado', false)
@@ -298,7 +310,9 @@ class ReporteController extends Controller
                 'name' => $barbero->name,
                 'role' => $barbero->role,
                 'porcentaje_comision' => $barbero->porcentaje_comision,
-                'cortes_totales' => Corte::where('barbero_id', $barbero->id)->count(),
+                'cortes_totales' => Corte::where('barbero_id', $barbero->id)
+                    ->whereBetween('fecha_hora', [$fechaInicioSemana, $fechaFinSemana])
+                    ->count(),
                 'total_producido' => number_format($totalProducido, 2),
                 'su_comision' => number_format($suComision, 2),
                 'descuento_adelantos' => number_format($descuentoAdelantos, 2),
