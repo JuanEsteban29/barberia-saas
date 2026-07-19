@@ -79,15 +79,12 @@
                     </div>
                     
                     <div class="flex gap-2 mb-2">
-                        <form action="{{ route('semana.cerrar') }}" method="POST" class="flex-1">
-                            @csrf
-                            <input type="hidden" name="barbero_id" value="{{ $item['id'] }}">
-                            <button type="submit"
-                                class="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-black py-3 px-4 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 text-sm">
-                                <i class="fa-solid fa-lock text-base"></i>
-                                <span>Cerrar Cuenta</span>
-                            </button>
-                        </form>
+                        <button type="button"
+                            onclick="abrirModalPago({{ $item['id'] }}, '{{ addslashes($item['name']) }}', '{{ $item['su_comision'] }}', '{{ $item['descuento_adelantos'] }}', '{{ $item['pago_neto_este_sabado'] }}')"
+                            class="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-black py-3 px-4 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 text-sm">
+                            <i class="fa-solid fa-hand-holding-dollar text-base"></i>
+                            <span>Confirmar Pago</span>
+                        </button>
                         <button onclick="abrirModalEditar({{ $item['id'] }}, '{{ addslashes($item['name']) }}', {{ $item['porcentaje_comision'] ?? 'null' }})"
                             class="bg-slate-800 hover:bg-blue-900/40 border border-slate-700 hover:border-blue-700/60 text-slate-400 hover:text-blue-400 text-xs font-bold px-3 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5">
                             <i class="fa-solid fa-pencil text-xs"></i>
@@ -161,13 +158,12 @@
                             </td>
                             <td class="px-5 py-4 text-center">
                                 <div class="flex justify-center gap-2">
-                                    <form action="{{ route('semana.cerrar') }}" method="POST">
-                                        @csrf
-                                        <input type="hidden" name="barbero_id" value="{{ $item['id'] }}">
-                                        <button type="submit" title="Cerrar cuenta del sábado" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-1.5 px-3 rounded-lg transition cursor-pointer flex items-center gap-1.5 shadow-lg shadow-emerald-500/10">
-                                            <i class="fa-solid fa-lock"></i> Cerrar
-                                        </button>
-                                    </form>
+                                    <button type="button"
+                                        title="Registrar pago al barbero y limpiar adelantos"
+                                        onclick="abrirModalPago({{ $item['id'] }}, '{{ addslashes($item['name']) }}', '{{ $item['su_comision'] }}', '{{ $item['descuento_adelantos'] }}', '{{ $item['pago_neto_este_sabado'] }}')"
+                                        class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-1.5 px-3 rounded-lg transition cursor-pointer flex items-center gap-1.5 shadow-lg shadow-emerald-500/10">
+                                        <i class="fa-solid fa-hand-holding-dollar"></i> Pagar
+                                    </button>
                                     <button onclick="abrirModalEditar({{ $item['id'] }}, '{{ addslashes($item['name']) }}', {{ $item['porcentaje_comision'] ?? 'null' }})"
                                         title="Editar barbero"
                                         class="bg-blue-600/80 hover:bg-blue-600 text-white text-xs font-bold py-1.5 px-3 rounded-lg transition cursor-pointer flex items-center gap-1.5">
@@ -323,6 +319,75 @@
     </div>
 </div>
 
+<!-- MODAL: Confirmar Pago al Barbero -->
+<div id="modalConfirmarPago" style="display: none;" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div onclick="cerrarModalPago()" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm"></div>
+
+    <div class="relative bg-slate-900 border border-slate-800 w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden z-10">
+        <div class="p-5 md:p-7">
+            <div class="flex justify-between items-center pb-4 border-b border-slate-800 mb-5">
+                <h3 class="text-base font-black text-white flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center">
+                        <i class="fa-solid fa-hand-holding-dollar text-emerald-400 text-sm"></i>
+                    </div>
+                    Confirmar Pago Semanal
+                </h3>
+                <button type="button" onclick="cerrarModalPago()"
+                    class="w-8 h-8 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+
+            <p class="text-slate-400 text-xs mb-3">Estás a punto de registrar el pago semanal para:</p>
+            <p class="text-white font-black text-lg mb-5 flex items-center gap-3">
+                <span id="pagoAvatar" class="w-9 h-9 rounded-full bg-slate-800 border border-amber-500/30 flex items-center justify-center text-amber-500 font-black text-sm flex-shrink-0"></span>
+                <span id="pagoNombreTexto"></span>
+            </p>
+
+            <div class="space-y-2 mb-5">
+                <div class="flex items-center justify-between px-4 py-3 bg-slate-800/60 rounded-xl">
+                    <span class="text-xs text-slate-400 font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-scissors text-emerald-400/70"></i> Comisión ganada esta semana
+                    </span>
+                    <span id="pagoComision" class="text-emerald-400 font-black text-sm"></span>
+                </div>
+                <div class="flex items-center justify-between px-4 py-3 bg-slate-800/60 rounded-xl">
+                    <span class="text-xs text-slate-400 font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-minus text-rose-400/70"></i> Adelantos que se descuentan
+                    </span>
+                    <span id="pagoAdelantos" class="text-rose-400 font-black text-sm"></span>
+                </div>
+                <div class="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-emerald-950/60 to-slate-900/80 border border-emerald-500/20 rounded-xl">
+                    <span class="text-sm text-white font-black flex items-center gap-2">
+                        <i class="fa-solid fa-circle-dollar-to-slot text-emerald-400"></i> Total a entregar en mano
+                    </span>
+                    <span id="pagoNeto" class="text-emerald-400 font-black text-xl"></span>
+                </div>
+            </div>
+
+            <div class="p-3.5 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs text-amber-300 flex items-start gap-3 mb-5">
+                <i class="fa-solid fa-circle-info text-amber-400 mt-0.5 flex-shrink-0"></i>
+                <span>Al confirmar, los <strong>adelantos pendientes quedarán marcados como pagados</strong> y la próxima semana el barbero empieza desde cero. No se elimina ningún registro histórico.</span>
+            </div>
+
+            <form id="formConfirmarPago" action="{{ route('semana.cerrar') }}" method="POST">
+                @csrf
+                <input type="hidden" id="pagoBarberoId" name="barbero_id" value="">
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="cerrarModalPago()"
+                        class="px-5 py-2.5 text-sm font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl transition-colors cursor-pointer">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                        class="px-6 py-2.5 text-sm font-black text-white bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 rounded-xl transition-all shadow-lg shadow-emerald-500/20 cursor-pointer flex items-center gap-2">
+                        <i class="fa-solid fa-check"></i> Sí, confirmar pago
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
     function toggleModalBarbero(action) {
         document.getElementById('modalBarbero').style.display = action ? 'flex' : 'none';
@@ -335,6 +400,18 @@
     }
     function cerrarModalEditar() {
         document.getElementById('modalEditarBarbero').style.display = 'none';
+    }
+    function abrirModalPago(id, nombre, comision, adelantos, neto) {
+        document.getElementById('pagoBarberoId').value = id;
+        document.getElementById('pagoNombreTexto').textContent = nombre;
+        document.getElementById('pagoAvatar').textContent = nombre.charAt(0).toUpperCase();
+        document.getElementById('pagoComision').textContent = '+$' + comision;
+        document.getElementById('pagoAdelantos').textContent = adelantos > 0 ? '-$' + adelantos : '$0.00';
+        document.getElementById('pagoNeto').textContent = '$' + neto;
+        document.getElementById('modalConfirmarPago').style.display = 'flex';
+    }
+    function cerrarModalPago() {
+        document.getElementById('modalConfirmarPago').style.display = 'none';
     }
 </script>
 
