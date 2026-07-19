@@ -270,9 +270,7 @@
                                         {{ $barbero->role === 'admin' ? '✦ Senior / Dueño' : 'Barbero Profesional' }}
                                     </p>
                                     <div class="flex items-center gap-1 mt-2">
-                                        @for($s = 0; $s < 5; $s++)
-                                            <i class="fa-solid fa-star" style="font-size:10px;color:#f5a623;"></i>
-                                        @endfor
+                                        <?php for($s = 0; $s < 5; $s++): ?><i class="fa-solid fa-star" style="font-size:10px;color:#f5a623;"></i><?php endfor; ?>
                                         <span style="font-size:10px;color:#71717a;margin-left:4px;">Top barber</span>
                                     </div>
                                 </div>
@@ -322,7 +320,7 @@
                     <!-- Servicios -->
                     <div class="space-y-3 mb-6">
                         <p style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#71717a;" class="mb-3">Servicios disponibles</p>
-                        @foreach($serviciosDisponibles as $servicio)
+                        @foreach($servicios as $servicio)
                         <div class="service-card" onclick="selectService({{ $servicio->id }}, '{{ $servicio->nombre }}', {{ $servicio->precio }}, {{ $servicio->duracion ?? 30 }})" id="service-card-{{ $servicio->id }}">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-3">
@@ -373,13 +371,17 @@
                                 <i class="fa-regular fa-clock"></i>
                                 <select name="fecha_hora_time" id="hora_input" class="gold-input" style="appearance:none;cursor:pointer;" required>
                                     <option value="">— Elige hora —</option>
-                                    @for($h = 8; $h <= 19; $h++)
-                                        @foreach(['00','30'] as $m)
-                                            <option value="{{ sprintf('%02d:%s', $h, $m) }}" {{ old('fecha_hora_time') == sprintf('%02d:%s', $h, $m) ? 'selected' : '' }}>
-                                                {{ sprintf('%02d:%s', $h, $m) }} {{ $h < 12 ? 'AM' : 'PM' }}
-                                            </option>
-                                        @endforeach
-                                    @endfor
+                                    <?php
+                                    $horarios = [];
+                                    for ($h = 8; $h <= 19; $h++) {
+                                        foreach (['00','30'] as $m) {
+                                            $val = sprintf('%02d:%s', $h, $m);
+                                            $label = $val . ' ' . ($h < 12 ? 'AM' : 'PM');
+                                            $sel = old('fecha_hora_time') == $val ? 'selected' : '';
+                                            echo "<option value=\"$val\" $sel>$label</option>\n";
+                                        }
+                                    }
+                                    ?>
                                 </select>
                             </div>
                         </div>
