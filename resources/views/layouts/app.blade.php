@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>{{ auth()->check() && auth()->user()->barberia ? auth()->user()->barberia->nombre : 'B-PRO' }} - Panel Premium</title>
+    <title>{{ auth()->check() && auth()->user()->barberia ? auth()->user()->barberia->nombre : 'TRIM' }} - Panel Premium</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -90,7 +90,7 @@
                 <h2 class="text-sm font-black text-white truncate uppercase leading-tight">
                     {{ auth()->check() ? (auth()->user()->barberia->nombre ?? 'Mi Barbería') : 'Barbería' }}
                 </h2>
-                <p class="text-[9px] uppercase tracking-widest font-bold mt-0.5 text-amber-500">B-PRO</p>
+                <p class="text-[9px] uppercase tracking-widest font-bold mt-0.5 text-amber-500">TRIM</p>
             </div>
         </div>
 
