@@ -76,6 +76,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/citas', [CitaController::class, 'index'])->name('citas.index');
         Route::get('/fiados', [ReporteController::class, 'vistaFiados'])->name('fiados.index');
         Route::post('/fiados/pagar/{id}', [ReporteController::class, 'pagarFiado'])->name('fiados.pagar');
+
+        // Configuraciones de la Barbería
+        Route::get('/configuracion', [BarberiaController::class, 'editSettings'])->name('barberia.configuracion');
+        Route::post('/configuracion', [BarberiaController::class, 'updateSettings'])->name('barberia.configuracion.update');
     });
 
     // ------------------------------------------

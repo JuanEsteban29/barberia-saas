@@ -6,7 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Barberia extends Model
 {
-    protected $fillable = ['nombre', 'slug', 'direccion', 'telefono', 'logo', 'porcentaje_barbero'];
+    protected $fillable = [
+        'nombre', 'slug', 'direccion', 'telefono', 'logo', 'porcentaje_barbero', 'tasa_bcv_modo', 'tasa_bcv_manual'
+    ];
 
     // Barberos y admins (personal que corta) de esta barbería
     public function barberos()

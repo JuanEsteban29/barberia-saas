@@ -27,7 +27,16 @@ class AppServiceProvider extends ServiceProvider
         
         // Obtener la tasa BCV del día y compartirla en todas las vistas Blade
         try {
-            $tasaBcv = \App\Services\BcvService::obtenerTasa();
+            $barberia = Barberia::firstOrCreate(
+                ['slug' => 'barberia-principal'],
+                ['nombre' => 'Mi Barbería Profesional', 'porcentaje_barbero' => 60, 'tasa_bcv_modo' => 'auto']
+            );
+
+            if ($barberia->tasa_bcv_modo === 'manual' && $barberia->tasa_bcv_manual > 0) {
+                $tasaBcv = (float) $barberia->tasa_bcv_manual;
+            } else {
+                $tasaBcv = \App\Services\BcvService::obtenerTasa();
+            }
         } catch (\Exception $e) {
             $tasaBcv = 45.50;
         }

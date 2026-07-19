@@ -20,4 +20,49 @@ class BarberiaController extends Controller
         $barberia = Barberia::with('servicios')->where('slug', $slug)->firstOrFail();
         return response()->json($barberia);
     }
+
+    /**
+     * Muestra la vista de configuración de la barbería.
+     */
+    public function editSettings()
+    {
+        // En un entorno multi-inquilino real se usaría el de la sesión.
+        // Aquí usamos el predeterminado por diseño de esta demo.
+        $barberia = Barberia::firstOrCreate(
+            ['slug' => 'barberia-principal'],
+            ['nombre' => 'Mi Barbería Profesional', 'porcentaje_barbero' => 60, 'tasa_bcv_modo' => 'auto']
+        );
+
+        return view('configuracion.index', compact('barberia'));
+    }
+
+    /**
+     * Guarda la configuración actualizada de la barbería.
+     */
+    public function updateSettings(Request $request)
+    {
+        $request->validate([
+            'nombre'             => 'required|string|max:255',
+            'porcentaje_barbero' => 'required|integer|between:0,100',
+            'tasa_bcv_modo'      => 'required|in:auto,manual',
+            'tasa_bcv_manual'    => 'nullable|numeric|min:0',
+        ]);
+
+        $barberia = Barberia::firstOrCreate(
+            ['slug' => 'barberia-principal'],
+            ['nombre' => 'Mi Barbería Profesional', 'porcentaje_barbero' => 60, 'tasa_bcv_modo' => 'auto']
+        );
+
+        $barberia->update([
+            'nombre'             => $request->nombre,
+            'porcentaje_barbero' => $request->porcentaje_barbero,
+            'tasa_bcv_modo'      => $request->tasa_bcv_modo,
+            'tasa_bcv_manual'    => $request->tasa_bcv_manual,
+        ]);
+
+        // Olvidar el caché para forzar la actualización inmediata de la tasa en el sistema
+        \Illuminate\Support\Facades\Cache::forget('tasa_bcv_dia');
+
+        return redirect()->back()->with('success', 'Configuración de la barbería guardada correctamente.');
+    }
 }

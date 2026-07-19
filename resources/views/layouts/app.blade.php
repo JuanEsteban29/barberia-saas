@@ -137,6 +137,10 @@
                         <i class="fa-regular fa-calendar-check w-5 text-center text-lg"></i>
                         <span class="font-medium text-sm">Ver Reservas</span>
                     </a>
+                    <a href="{{ route('barberia.configuracion') }}" class="nav-item flex items-center space-x-4 px-6 py-3 {{ request()->routeIs('barberia.configuracion') ? 'nav-item-active' : 'text-slate-400' }}">
+                        <i class="fa-solid fa-gears w-5 text-center text-lg"></i>
+                        <span class="font-medium text-sm">Configuraciones</span>
+                    </a>
                 @else
                     <a href="{{ route('reservas.public.create', auth()->user()->barberia->slug ?? 'demo') }}" target="_blank" class="nav-item flex items-center space-x-4 px-6 py-3 text-slate-400 group">
                         <i class="fa-regular fa-calendar-check w-5 text-center text-lg group-hover:text-emerald-400 transition-colors"></i>
@@ -277,6 +281,12 @@
                 </div>
 
                 <div class="h-8 w-px" style="background:rgba(245,166,35,.15);"></div>
+                @if(auth()->check() && strtolower(auth()->user()->role) === 'admin')
+                    <a href="{{ route('barberia.configuracion') }}" class="w-8 h-8 rounded-lg hover:bg-slate-800/80 border border-slate-800 hover:border-slate-700/50 flex items-center justify-center text-slate-400 hover:text-white transition-all cursor-pointer" title="Configuraciones">
+                        <i class="fa-solid fa-gears text-sm"></i>
+                    </a>
+                    <div class="h-8 w-px bg-slate-800/60"></div>
+                @endif
                 <div class="text-right">
                     <p class="text-xs md:text-sm font-bold text-white max-w-[90px] sm:max-w-none truncate">{{ auth()->check() ? (auth()->user()->barberia->nombre ?? 'Mi Barbería') : 'Sistema' }}</p>
                     <p class="text-[9px] md:text-xs text-slate-400 hidden sm:block" id="live-time">Cargando...</p>
