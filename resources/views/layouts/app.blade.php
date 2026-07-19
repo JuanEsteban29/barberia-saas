@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Barberia ERP - Panel Premium</title>
+    <title>{{ auth()->check() && auth()->user()->barberia ? auth()->user()->barberia->nombre : 'B-PRO' }} - Panel Premium</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -78,17 +78,19 @@
         </button>
 
         <!-- Logo -->
-        <div class="p-6 border-b flex items-center space-x-3" style="border-color:rgba(245,166,35,.12);">
+        <div class="p-4 border-b flex items-center space-x-3" style="border-color:rgba(245,166,35,.12);">
             @if(auth()->check() && auth()->user()->barberia && auth()->user()->barberia->logo)
-                <img src="{{ auth()->user()->barberia->logo }}" alt="Logo" class="w-10 h-10 object-contain rounded-xl border border-slate-800 shadow-lg">
+                <img src="{{ auth()->user()->barberia->logo }}" alt="Logo" class="w-9 h-9 object-contain rounded-xl border border-slate-800 shadow-lg">
             @else
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg" style="background:linear-gradient(135deg,#f5a623,#d4891a);box-shadow:0 4px 20px rgba(245,166,35,.3);">
-                    <i class="fa-solid fa-scissors text-black text-lg"></i>
+                <div class="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0" style="background:linear-gradient(135deg,#f5a623,#d4891a);box-shadow:0 4px 20px rgba(245,166,35,.3);">
+                    <i class="fa-solid fa-scissors text-black text-sm"></i>
                 </div>
             @endif
-            <div>
-                <h2 class="text-xl font-black tracking-widest text-white leading-none">BARBER<span style="color:#f5a623;">ERP</span></h2>
-                <p class="text-[10px] uppercase tracking-widest font-semibold mt-1" style="color:#52525b;">Premium &bull; Black & Gold</p>
+            <div class="min-w-0">
+                <h2 class="text-sm font-black text-white truncate uppercase leading-tight">
+                    {{ auth()->check() ? (auth()->user()->barberia->nombre ?? 'Mi Barbería') : 'Barbería' }}
+                </h2>
+                <p class="text-[9px] uppercase tracking-widest font-bold mt-0.5 text-amber-500">B-PRO</p>
             </div>
         </div>
 
@@ -290,8 +292,8 @@
                     <div class="h-8 w-px bg-slate-800/60"></div>
                 @endif
                 <div class="text-right">
-                    <p class="text-xs md:text-sm font-bold text-white max-w-[90px] sm:max-w-none truncate">{{ auth()->check() ? (auth()->user()->barberia->nombre ?? 'Mi Barbería') : 'Sistema' }}</p>
-                    <p class="text-[9px] md:text-xs text-slate-400 hidden sm:block" id="live-time">Cargando...</p>
+                    <p class="text-xs md:text-sm font-bold text-white max-w-[90px] sm:max-w-none truncate">{{ auth()->check() ? auth()->user()->name : 'Sistema' }}</p>
+                    <p class="text-[9px] uppercase tracking-widest font-extrabold text-amber-500/80 leading-none mt-0.5">{{ auth()->check() ? auth()->user()->role : 'Invitado' }}</p>
                 </div>
             </div>
         </header>
