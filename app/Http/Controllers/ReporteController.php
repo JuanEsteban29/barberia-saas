@@ -333,6 +333,10 @@ class ReporteController extends Controller
 
         $gananciaNeta = $totalBruto - $totalGastos - $totalComisiones;
 
+        $barberos = User::where('barberia_id', $barberia->id)
+            ->whereIn('role', ['admin', 'barbero'])
+            ->get();
+
         return view('finanzas.index', compact(
             'totalBruto', 
             'totalGastos', 
@@ -340,7 +344,8 @@ class ReporteController extends Controller
             'dineroEfectivo', 
             'dineroTransferencia', 
             'totalComisiones', 
-            'gastosSemanales'
+            'gastosSemanales',
+            'barberos'
         ));
     }
 
@@ -376,28 +381,39 @@ class ReporteController extends Controller
         return redirect()->back()->with('success', 'Fiado liquidado y registrado en caja.');
     }
 
-    /**
-     * Registrar un gasto.
-     */
     public function storeGasto(Request $request)
     {
         $request->validate([
             'descripcion' => 'required|string|max:255',
             'categoria'   => 'required|in:Insumos,Servicios,Local,Personal,Otro',
             'monto'       => 'required|numeric|min:0.01',
+            'barbero_id'  => 'nullable|exists:users,id',
         ]);
 
         $barberia = $this->obtenerBarberiaActiva();
 
-        Gasto::create([
-            'barberia_id' => $barberia->id,
-            'descripcion' => $request->descripcion,
-            'categoria'   => $request->categoria,
-            'monto'       => $request->monto,
-            'fecha_gasto' => now(),
-        ]);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($request, $barberia) {
+            // 1. Crear el Gasto General
+            Gasto::create([
+                'barberia_id' => $barberia->id,
+                'descripcion' => $request->descripcion,
+                'categoria'   => $request->categoria,
+                'monto'       => $request->monto,
+                'fecha_gasto' => now(),
+            ]);
 
-        return redirect()->route('finanzas.index')->with('success', 'Gasto registrado correctamente.');
+            // 2. Si la categoría es Personal y se seleccionó un barbero, crear el Adelanto
+            if ($request->categoria === 'Personal' && $request->barbero_id) {
+                Adelanto::create([
+                    'barbero_id' => $request->barbero_id,
+                    'monto'      => $request->monto,
+                    'motivo'     => $request->descripcion,
+                    'descontado' => false,
+                ]);
+            }
+        });
+
+        return redirect()->route('finanzas.index')->with('success', 'Gasto/Adelanto registrado correctamente.');
     }
 
     /**

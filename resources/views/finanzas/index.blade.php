@@ -4,7 +4,7 @@
 <style>[x-cloak] { display: none !important; }</style>
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
-<div class="animate-fade-in-up space-y-8" x-data="{ showModalGasto: false }">
+<div class="animate-fade-in-up space-y-8" x-data="{ showModalGasto: false, categoria: '' }">
 
     <!-- Header -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-5">
@@ -220,7 +220,7 @@
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
                             <i class="fa-solid fa-tag text-sm"></i>
                         </span>
-                        <select name="categoria" required
+                        <select name="categoria" x-model="categoria" required
                             class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-3 pl-10 pr-10 text-sm text-white focus:outline-none focus:ring-2 focus:ring-rose-500/50 transition appearance-none cursor-pointer">
                             <option value="" class="bg-slate-900">-- Selecciona una categoría --</option>
                             <option value="Insumos" class="bg-slate-900">Insumos (gel, tinte, etc.)</option>
@@ -228,6 +228,26 @@
                             <option value="Local" class="bg-slate-900">Local (renta, limpieza)</option>
                             <option value="Personal" class="bg-slate-900">Personal (bono, adelanto extra)</option>
                             <option value="Otro" class="bg-slate-900">Otro</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-500">
+                            <i class="fa-solid fa-chevron-down text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Selector de Barbero (Solo para Adelanto/Personal) -->
+                <div x-show="categoria === 'Personal'" x-transition class="space-y-2">
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-wider font-semibold">Barbero que recibe el Adelanto</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
+                            <i class="fa-solid fa-user-tie text-sm"></i>
+                        </span>
+                        <select name="barbero_id" :required="categoria === 'Personal'"
+                            class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-3 pl-10 pr-10 text-sm text-white focus:outline-none focus:ring-2 focus:ring-rose-500/50 transition appearance-none cursor-pointer">
+                            <option value="" class="bg-slate-900">-- Selecciona al barbero --</option>
+                            @foreach($barberos as $barbero)
+                                <option value="{{ $barbero->id }}" class="bg-slate-900">{{ $barbero->name }}</option>
+                            @endforeach
                         </select>
                         <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-500">
                             <i class="fa-solid fa-chevron-down text-xs"></i>

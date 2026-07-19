@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Adelanto extends Model
 {
-    protected $fillable = ['barbero_id', 'monto', 'descontado', 'fecha_adelanto'];
+    protected $fillable = ['barbero_id', 'monto', 'descontado', 'fecha_adelanto', 'motivo'];
 
     // Esta es la parte que falta y causa el error en image_10.png
     public function barbero()
