@@ -115,6 +115,18 @@ class ReservaController extends Controller
             'fecha_hora'       => 'required|date|after:now',
         ]);
 
+        // Verificar si la fecha y hora ya están reservadas para ese barbero
+        $fechaHoraReservada = Corte::where('barbero_id', $request->barbero_id)
+            ->where('fecha_hora', $request->fecha_hora)
+            ->whereIn('estado', ['pendiente', 'completada', 'fiado'])
+            ->exists();
+        
+        if ($fechaHoraReservada) {
+            return redirect()->back()
+                ->withErrors(['fecha_hora' => 'El horario seleccionado ya no está disponible con este barbero. Por favor elige otra fecha u hora.'])
+                ->withInput();
+        }
+
         $servicio = Servicio::findOrFail($request->servicio_id);
 
         // Buscar o registrar al cliente en la base de datos
@@ -208,5 +220,29 @@ class ReservaController extends Controller
         });
 
         return redirect()->back()->with('success', '¡Cita completada y cobrada con éxito!');
+    }
+
+    /**
+     * Devuelve las horas ya reservadas de un barbero para una fecha específica.
+     */
+    public function obtenerHorasOcupadas(Request $request, $id)
+    {
+        $fecha = $request->query('fecha');
+        if (!$fecha) {
+            return response()->json([]);
+        }
+
+        // Buscar todas las citas del barbero para esa fecha que estén activas
+        $horasOcupadas = Corte::where('barbero_id', $id)
+            ->whereDate('fecha_hora', $fecha)
+            ->whereIn('estado', ['pendiente', 'completada', 'fiado'])
+            ->pluck('fecha_hora');
+
+        // Extraer solo la hora en formato HH:MM (ej: "09:30")
+        $horas = $horasOcupadas->map(function ($dateTime) {
+            return $dateTime->format('H:i');
+        });
+
+        return response()->json($horas);
     }
 }

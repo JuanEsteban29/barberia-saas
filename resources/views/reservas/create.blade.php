@@ -362,7 +362,7 @@
                                 <input type="date" name="fecha_hora_date" id="fecha_input"
                                        min="{{ now()->addHour()->format('Y-m-d') }}"
                                        value="{{ old('fecha_hora_date', now()->addDay()->format('Y-m-d')) }}"
-                                       class="gold-input" required>
+                                       class="gold-input" onchange="cargarHorariosDisponibles()" required>
                             </div>
                         </div>
                         <div>
@@ -586,6 +586,9 @@
             const nm2 = document.getElementById('summary-barber-name-2');
             if (av2) av2.textContent = name.charAt(0).toUpperCase();
             if (nm2) nm2.textContent = name;
+
+            // Fetch and block busy hours
+            cargarHorariosDisponibles();
         }
 
         // ─── Service selection ───
@@ -630,6 +633,55 @@
             toast.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>' + msg;
             setTimeout(() => { toast.style.opacity = '1'; toast.style.transform = 'translateX(-50%) translateY(0)'; }, 10);
             setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateX(-50%) translateY(20px)'; }, 3000);
+        }
+
+        // ─── Fetch busy hours dynamically ───
+        async function cargarHorariosDisponibles() {
+            const barberId = selectedBarberId;
+            const fecha = document.getElementById('fecha_input').value;
+            const selectHora = document.getElementById('hora_input');
+
+            if (!barberId || !fecha) {
+                return;
+            }
+
+            const currentSelectedVal = selectHora.value;
+            selectHora.disabled = true;
+            selectHora.options[0].text = 'Buscando horarios...';
+
+            try {
+                const response = await fetch(`/api/barberos/${barberId}/ocupados?fecha=${fecha}`);
+                const horasOcupadas = await response.json();
+
+                for (let i = 1; i < selectHora.options.length; i++) {
+                    const option = selectHora.options[i];
+                    const val = option.value;
+
+                    if (horasOcupadas.includes(val)) {
+                        option.disabled = true;
+                        option.text = val + ' ' + (parseInt(val.split(':')[0]) < 12 ? 'AM' : 'PM') + ' (Ocupado)';
+                        option.style.color = '#ef4444';
+                        option.style.textDecoration = 'line-through';
+                    } else {
+                        option.disabled = false;
+                        option.text = val + ' ' + (parseInt(val.split(':')[0]) < 12 ? 'AM' : 'PM');
+                        option.style.color = '#fff';
+                        option.style.textDecoration = 'none';
+                    }
+                }
+
+                if (horasOcupadas.includes(currentSelectedVal)) {
+                    selectHora.value = '';
+                } else {
+                    selectHora.value = currentSelectedVal;
+                }
+
+            } catch (error) {
+                console.error('Error al cargar horarios:', error);
+            } finally {
+                selectHora.disabled = false;
+                selectHora.options[0].text = '— Elige hora —';
+            }
         }
 
         // ─── Restore state if old() values exist ───

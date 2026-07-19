@@ -94,6 +94,8 @@ Route::middleware(['auth'])->group(function () {
 // ==========================================
 // RUTAS PÚBLICAS DE RESERVAS (CLIENTES)
 // ==========================================
+Route::get('/api/barberos/{id}/ocupados', [ReservaController::class, 'obtenerHorasOcupadas']);
+
 Route::get('/{slug}/reservar', [ReservaController::class, 'createPublic'])->name('reservas.public.create');
 Route::get('/{slug}/reserva', [ReservaController::class, 'createPublic']);
 Route::post('/{slug}/reservar', [ReservaController::class, 'storePublic'])->name('reservas.public.store');
