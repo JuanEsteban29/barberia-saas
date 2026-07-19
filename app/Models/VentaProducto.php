@@ -8,7 +8,11 @@ class VentaProducto extends Model
 {
     protected $table = 'ventas_productos';
 
-    protected $fillable = ['barberia_id', 'producto_id', 'barbero_id', 'cierre_diario_id', 'cantidad', 'precio_unitario', 'comision_barbero', 'metodo_pago'];
+    protected $fillable = ['barberia_id', 'producto_id', 'barbero_id', 'cierre_diario_id', 'cantidad', 'precio_unitario', 'comision_barbero', 'metodo_pago', 'pagado_al_barbero'];
+
+    protected $casts = [
+        'pagado_al_barbero' => 'boolean',
+    ];
 
     public function barberia()
     {

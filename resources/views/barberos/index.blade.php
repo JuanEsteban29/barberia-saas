@@ -114,67 +114,67 @@
         <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="text-slate-500 uppercase text-[10px] tracking-widest border-b border-slate-800/60">
-                        <th class="px-5 py-3 font-bold">Barbero</th>
-                        <th class="px-5 py-3 font-bold">Rol</th>
-                        <th class="px-5 py-3 text-center font-bold">Cortes</th>
-                        <th class="px-5 py-3 text-right font-bold">Total Producido</th>
-                        <th class="px-5 py-3 text-right font-bold">Comisión (%)</th>
-                        <th class="px-5 py-3 text-right font-bold">Adelantos</th>
-                        <th class="px-5 py-3 text-right font-bold">Pago Neto Sáb.</th>
-                        <th class="px-5 py-3 text-center font-bold">Acciones</th>
+                    <tr class="text-slate-500 uppercase text-[9px] tracking-widest border-b border-slate-800/60 bg-slate-950/20">
+                        <th class="px-4 py-2 font-bold">Barbero</th>
+                        <th class="px-4 py-2 font-bold">Rol</th>
+                        <th class="px-4 py-2 text-center font-bold">Cortes</th>
+                        <th class="px-4 py-2 text-right font-bold">Total Producido</th>
+                        <th class="px-4 py-2 text-right font-bold">Comisión (%)</th>
+                        <th class="px-4 py-2 text-right font-bold">Adelantos</th>
+                        <th class="px-4 py-2 text-right font-bold">Pago Neto Sáb.</th>
+                        <th class="px-4 py-2 text-center font-bold">Acciones</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-800/50 text-sm">
+                <tbody class="divide-y divide-slate-800/40 text-xs">
                     @foreach($nominaSabado as $item)
-                        <tr class="hover:bg-slate-800/30 transition-colors group">
-                            <td class="px-5 py-4">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-9 h-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-amber-500 font-black text-sm shadow-inner flex-shrink-0">
+                        <tr class="hover:bg-slate-800/20 transition-colors group">
+                            <td class="px-4 py-2.5">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-7 h-7 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-amber-500 font-black text-xs shadow-inner flex-shrink-0">
                                         {{ strtoupper(substr($item['name'], 0, 1)) }}
                                     </div>
-                                    <span class="font-bold text-white">{{ $item['name'] }}</span>
+                                    <span class="font-bold text-white text-xs">{{ $item['name'] }}</span>
                                 </div>
                             </td>
-                            <td class="px-5 py-4">
-                                <span class="text-xs font-bold px-2.5 py-1 rounded-md {{ $item['role'] === 'admin' ? 'bg-amber-500/10 border border-amber-500/20 text-amber-400' : 'bg-blue-500/10 border border-blue-500/20 text-blue-400' }}">
+                            <td class="px-4 py-2.5">
+                                <span class="text-[9px] font-bold px-2 py-0.5 rounded-md {{ $item['role'] === 'admin' ? 'bg-amber-500/10 border border-amber-500/20 text-amber-400' : 'bg-blue-500/10 border border-blue-500/20 text-blue-400' }}">
                                     {{ ucfirst($item['role']) }}
                                 </span>
                             </td>
-                            <td class="px-5 py-4 text-center">
-                                <span class="bg-slate-800 text-slate-300 font-bold text-sm px-3 py-1 rounded-md">{{ $item['cortes_totales'] }}</span>
+                            <td class="px-4 py-2.5 text-center">
+                                <span class="bg-slate-800 text-slate-300 font-bold text-xs px-2 py-0.5 rounded">{{ $item['cortes_totales'] }}</span>
                             </td>
-                            <td class="px-5 py-4 text-right text-slate-400 font-semibold">${{ $item['total_producido'] }}</td>
-                            <td class="px-5 py-4 text-right text-emerald-400">
-                                <span class="font-black">${{ $item['su_comision'] }}</span>
-                                <span class="text-[10px] text-slate-500 block font-normal">({{ $item['porcentaje_comision'] !== null ? $item['porcentaje_comision'] : ($barberia->porcentaje_barbero ?? 60) }}%)</span>
+                            <td class="px-4 py-2.5 text-right text-slate-400 font-medium">${{ $item['total_producido'] }}</td>
+                            <td class="px-4 py-2.5 text-right text-emerald-400">
+                                <span class="font-black text-xs">${{ $item['su_comision'] }}</span>
+                                <span class="text-[9px] text-slate-500 block font-normal">({{ $item['porcentaje_comision'] !== null ? $item['porcentaje_comision'] : ($barberia->porcentaje_barbero ?? 60) }}%)</span>
                             </td>
-                            <td class="px-5 py-4 text-right text-rose-400 font-bold">-${{ $item['descuento_adelantos'] }}</td>
-                            <td class="px-5 py-4 text-right">
+                            <td class="px-4 py-2.5 text-right text-rose-400 font-bold">-${{ $item['descuento_adelantos'] }}</td>
+                            <td class="px-4 py-2.5 text-right">
                                 <div>
-                                    <span class="text-xl font-black text-white">${{ $item['pago_neto_este_sabado'] }}</span>
-                                    <p class="text-[10px] text-amber-500/60 font-bold">Bs. {{ number_format((float)str_replace(',','',$item['pago_neto_este_sabado']) * $tasaBcv, 0) }}</p>
+                                    <span class="text-sm font-black text-white">${{ $item['pago_neto_este_sabado'] }}</span>
+                                    <p class="text-[9px] text-amber-500/60 font-bold">Bs. {{ number_format((float)str_replace(',','',$item['pago_neto_este_sabado']) * $tasaBcv, 0) }}</p>
                                 </div>
                             </td>
-                            <td class="px-5 py-4 text-center">
-                                <div class="flex justify-center gap-2">
+                            <td class="px-4 py-2.5 text-center">
+                                <div class="flex justify-center gap-1.5">
                                     <button type="button"
                                         title="Registrar pago al barbero y limpiar adelantos"
                                         onclick="abrirModalPago({{ $item['id'] }}, '{{ addslashes($item['name']) }}', '{{ $item['su_comision'] }}', '{{ $item['descuento_adelantos'] }}', '{{ $item['pago_neto_este_sabado'] }}')"
-                                        class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-1.5 px-3 rounded-lg transition cursor-pointer flex items-center gap-1.5 shadow-lg shadow-emerald-500/10">
+                                        class="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold py-1 px-2.5 rounded transition cursor-pointer flex items-center gap-1 shadow-sm">
                                         <i class="fa-solid fa-hand-holding-dollar"></i> Pagar
                                     </button>
                                     <button onclick="abrirModalEditar({{ $item['id'] }}, '{{ addslashes($item['name']) }}', {{ $item['porcentaje_comision'] ?? 'null' }})"
                                         title="Editar barbero"
-                                        class="bg-blue-600/80 hover:bg-blue-600 text-white text-xs font-bold py-1.5 px-3 rounded-lg transition cursor-pointer flex items-center gap-1.5">
+                                        class="bg-blue-600/80 hover:bg-blue-600 text-white text-[10px] font-bold py-1 px-2.5 rounded transition cursor-pointer flex items-center gap-1">
                                         <i class="fa-solid fa-pencil"></i> Editar
                                     </button>
                                     <form action="{{ route('barberos.destroy', $item['id']) }}" method="POST"
                                         onsubmit="return confirm('¿Seguro que deseas dar de baja a este trabajador?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="bg-rose-600/80 hover:bg-rose-600 text-white text-xs font-bold py-1.5 px-2 rounded-lg transition cursor-pointer flex items-center gap-1.5">
-                                            <i class="fa-solid fa-user-slash"></i>
+                                        <button type="submit" class="bg-rose-600/80 hover:bg-rose-600 text-white text-[10px] font-bold py-1 px-2 rounded transition cursor-pointer flex items-center justify-center">
+                                            <i class="fa-solid fa-user-slash text-[9px]"></i>
                                         </button>
                                     </form>
                                 </div>

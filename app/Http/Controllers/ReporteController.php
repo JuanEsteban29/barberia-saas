@@ -283,23 +283,42 @@ class ReporteController extends Controller
         $fechaInicioSemana = Carbon::now()->startOfWeek();
         $fechaFinSemana = Carbon::now()->endOfWeek();
         
+        $hasPagadoColumn = \Illuminate\Support\Facades\Schema::hasColumn('comisiones', 'pagado_al_barbero');
+        
         $nominaSabado = [];
         foreach ($barberos as $barbero) {
-            $totalProducido = Corte::where('barbero_id', $barbero->id)
-                ->whereBetween('fecha_hora', [$fechaInicioSemana, $fechaFinSemana])
-                ->where('pago_completado', true)
-                ->sum('precio');
+            // Obtener cortes completados que no han sido pagados al barbero
+            $cortesQuery = Corte::where('barbero_id', $barbero->id)
+                ->where('pago_completado', true);
 
-            // Las comisiones se traen de la tabla comisiones para cortes pagados esta semana
-            $suComisionCortes = Comision::where('barbero_id', $barbero->id)
-                ->whereBetween('created_at', [$fechaInicioSemana, $fechaFinSemana])
-                ->whereHas('corte', fn($q) => $q->where('pago_completado', true))
-                ->sum('monto_barbero');
+            if ($hasPagadoColumn) {
+                $cortesQuery->whereHas('comision', fn($q) => $q->where('pagado_al_barbero', false));
+            } else {
+                $cortesQuery->whereBetween('fecha_hora', [$fechaInicioSemana, $fechaFinSemana]);
+            }
+            
+            $cortes = $cortesQuery->get();
+            $totalProducido = $cortes->sum('precio');
+            $cortesTotalesCount = $cortes->count();
 
-            // Comisiones de productos recomendados esta semana
-            $suComisionProductos = \App\Models\VentaProducto::where('barbero_id', $barbero->id)
-                ->whereBetween('created_at', [$fechaInicioSemana, $fechaFinSemana])
-                ->sum('comision_barbero');
+            // Calcular comisión dinámicamente usando el porcentaje actual del barbero
+            $porcentajeActual = ($barbero->porcentaje_comision !== null) 
+                ? $barbero->porcentaje_comision 
+                : ($barberia->porcentaje_barbero ?? 60.00);
+
+            $suComisionCortes = 0;
+            foreach ($cortes as $corte) {
+                $suComisionCortes += $corte->precio * ($porcentajeActual / 100);
+            }
+
+            // Comisiones de productos no pagados aún
+            $productosQuery = \App\Models\VentaProducto::where('barbero_id', $barbero->id);
+            if ($hasPagadoColumn) {
+                $productosQuery->where('pagado_al_barbero', false);
+            } else {
+                $productosQuery->whereBetween('created_at', [$fechaInicioSemana, $fechaFinSemana]);
+            }
+            $suComisionProductos = $productosQuery->sum('comision_barbero');
 
             $suComision = $suComisionCortes + $suComisionProductos;
 
@@ -314,9 +333,7 @@ class ReporteController extends Controller
                 'name' => $barbero->name,
                 'role' => $barbero->role,
                 'porcentaje_comision' => $barbero->porcentaje_comision,
-                'cortes_totales' => Corte::where('barbero_id', $barbero->id)
-                    ->whereBetween('fecha_hora', [$fechaInicioSemana, $fechaFinSemana])
-                    ->count(),
+                'cortes_totales' => $cortesTotalesCount,
                 'total_producido' => number_format($totalProducido, 2),
                 'su_comision' => number_format($suComision, 2),
                 'descuento_adelantos' => number_format($descuentoAdelantos, 2),
@@ -326,6 +343,7 @@ class ReporteController extends Controller
         $tasaBcv = $barberia->tasa_bcv ?? 1;
         return view('barberos.index', compact('nominaSabado', 'barberia', 'tasaBcv'));
     }
+
 
     /**
      * Vista de gastos y finanzas globales.
@@ -496,9 +514,29 @@ class ReporteController extends Controller
 
     public function cerrarSemana(Request $request) 
     { 
-        Adelanto::where('barbero_id', $request->barbero_id)->update(['descontado' => true]); 
-        return redirect()->back(); 
+        $hasPagadoColumn = \Illuminate\Support\Facades\Schema::hasColumn('comisiones', 'pagado_al_barbero');
+        
+        \Illuminate\Support\Facades\DB::transaction(function() use ($request, $hasPagadoColumn) {
+            // 1. Marcar los adelantos de esta semana como descontados
+            Adelanto::where('barbero_id', $request->barbero_id)
+                ->where('descontado', false)
+                ->update(['descontado' => true]); 
+
+            // 2. Marcar las comisiones como pagadas para que comience en cero
+            if ($hasPagadoColumn) {
+                Comision::where('barbero_id', $request->barbero_id)
+                    ->where('pagado_al_barbero', false)
+                    ->update(['pagado_al_barbero' => true]);
+
+                \App\Models\VentaProducto::where('barbero_id', $request->barbero_id)
+                    ->where('pagado_al_barbero', false)
+                    ->update(['pagado_al_barbero' => true]);
+            }
+        });
+
+        return redirect()->back()->with('success', 'Pago semanal registrado y saldo del barbero restablecido a cero.'); 
     }
+
 
     /**
      * Dashboard del Barbero (Panel Restringido)
@@ -530,31 +568,48 @@ class ReporteController extends Controller
             ->orderBy('fecha_hora', 'asc')
             ->get();
 
-        // 3. Cálculo de comisiones en tiempo real (Semana en curso - Lunes a Domingo)
+        // 3. Cálculo de comisiones en tiempo real
         $fechaInicioSemana = Carbon::now()->startOfWeek();
         $fechaFinSemana = Carbon::now()->endOfWeek();
 
-        // Comisiones de Cortes de esta semana (solo cobrados)
-        $comisionesCortesSemana = Comision::where('barbero_id', $user->id)
-            ->whereBetween('created_at', [$fechaInicioSemana, $fechaFinSemana])
-            ->whereHas('corte', fn($q) => $q->where('pago_completado', true))
-            ->sum('monto_barbero');
+        $hasPagadoColumn = \Illuminate\Support\Facades\Schema::hasColumn('comisiones', 'pagado_al_barbero');
+
+        // Cortes para calcular comisiones del barbero
+        $cortesQuery = Corte::where('barbero_id', $user->id)
+            ->where('pago_completado', true);
+        
+        if ($hasPagadoColumn) {
+            $cortesQuery->whereHas('comision', fn($q) => $q->where('pagado_al_barbero', false));
+        } else {
+            $cortesQuery->whereBetween('fecha_hora', [$fechaInicioSemana, $fechaFinSemana]);
+        }
+        
+        $cortesDeLaSemana = $cortesQuery->get();
+        $cortesSemana = $cortesDeLaSemana->count();
+
+        // Calcular comisión dinámicamente usando el porcentaje actual del barbero
+        $porcentajeActual = ($user->porcentaje_comision !== null) 
+            ? $user->porcentaje_comision 
+            : ($barberia->porcentaje_barbero ?? 60.00);
+
+        $comisionesCortesSemana = 0;
+        foreach ($cortesDeLaSemana as $c) {
+            $comisionesCortesSemana += $c->precio * ($porcentajeActual / 100);
+        }
 
         // Comisiones de Productos de esta semana
-        $comisionesProductosSemana = \App\Models\VentaProducto::where('barbero_id', $user->id)
-            ->whereBetween('created_at', [$fechaInicioSemana, $fechaFinSemana])
-            ->sum('comision_barbero');
+        $productosQuery = \App\Models\VentaProducto::where('barbero_id', $user->id);
+        if ($hasPagadoColumn) {
+            $productosQuery->where('pagado_al_barbero', false);
+        } else {
+            $productosQuery->whereBetween('created_at', [$fechaInicioSemana, $fechaFinSemana]);
+        }
+        $comisionesProductosSemana = $productosQuery->sum('comision_barbero');
 
         // Adelantos de esta semana activos (no descontados aún)
         $adelantosSemana = \App\Models\Adelanto::where('barbero_id', $user->id)
             ->where('descontado', false)
             ->sum('monto');
-
-        // Total de cortes completados esta semana
-        $cortesSemana = Corte::where('barbero_id', $user->id)
-            ->whereBetween('fecha_hora', [$fechaInicioSemana, $fechaFinSemana])
-            ->where('pago_completado', true)
-            ->count();
 
         // Pago Neto Estimado
         $pagoNetoSemana = ($comisionesCortesSemana + $comisionesProductosSemana) - $adelantosSemana;

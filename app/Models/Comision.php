@@ -14,12 +14,14 @@ class Comision extends Model
         'monto_barbero',
         'monto_negocio',
         'porcentaje_barbero',
+        'pagado_al_barbero',
     ];
 
     protected $casts = [
         'monto_barbero' => 'decimal:2',
         'monto_negocio' => 'decimal:2',
         'porcentaje_barbero' => 'decimal:2',
+        'pagado_al_barbero' => 'boolean',
     ];
 
     public function corte()
