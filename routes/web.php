@@ -7,6 +7,7 @@ use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\CorteController;
 use App\Http\Controllers\CierreController;
 use App\Http\Controllers\ReservaController;
+use App\Http\Controllers\ProductoController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -80,6 +81,13 @@ Route::middleware(['auth'])->group(function () {
         // Configuraciones de la Barbería
         Route::get('/configuracion', [BarberiaController::class, 'editSettings'])->name('barberia.configuracion');
         Route::post('/configuracion', [BarberiaController::class, 'updateSettings'])->name('barberia.configuracion.update');
+
+        // Inventario y Venta de Productos
+        Route::get('/inventario', [ProductoController::class, 'index'])->name('inventario.index');
+        Route::post('/inventario', [ProductoController::class, 'store'])->name('inventario.store');
+        Route::put('/inventario/{id}', [ProductoController::class, 'update'])->name('inventario.update');
+        Route::delete('/inventario/{id}', [ProductoController::class, 'destroy'])->name('inventario.destroy');
+        Route::post('/inventario/vender', [ProductoController::class, 'vender'])->name('inventario.vender');
     });
 
     // ------------------------------------------

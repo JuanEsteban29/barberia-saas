@@ -137,6 +137,40 @@ class ReporteController extends Controller
                 ->sum('precio');
         }
 
+        // 5.1. Métodos de Pago del Periodo (Cortes + Ventas de Productos)
+        $pagoUsd = Corte::where('barberia_id', $barberia->id)
+            ->whereBetween('fecha_hora', [$fechaInicio, $fechaFin])
+            ->where('metodo_pago', 'efectivo_usd')
+            ->where('pago_completado', true)
+            ->sum('precio');
+            
+        $pagoBs = Corte::where('barberia_id', $barberia->id)
+            ->whereBetween('fecha_hora', [$fechaInicio, $fechaFin])
+            ->where('metodo_pago', 'efectivo_bs')
+            ->where('pago_completado', true)
+            ->sum('precio');
+            
+        $pagoTrans = Corte::where('barberia_id', $barberia->id)
+            ->whereBetween('fecha_hora', [$fechaInicio, $fechaFin])
+            ->where('metodo_pago', 'transferencia')
+            ->where('pago_completado', true)
+            ->sum('precio');
+
+        $pagoUsd += \App\Models\VentaProducto::where('barberia_id', $barberia->id)
+            ->whereBetween('created_at', [$fechaInicio, $fechaFin])
+            ->where('metodo_pago', 'efectivo_usd')
+            ->sum(\Illuminate\Support\Facades\DB::raw('cantidad * precio_unitario'));
+            
+        $pagoBs += \App\Models\VentaProducto::where('barberia_id', $barberia->id)
+            ->whereBetween('created_at', [$fechaInicio, $fechaFin])
+            ->where('metodo_pago', 'efectivo_bs')
+            ->sum(\Illuminate\Support\Facades\DB::raw('cantidad * precio_unitario'));
+            
+        $pagoTrans += \App\Models\VentaProducto::where('barberia_id', $barberia->id)
+            ->whereBetween('created_at', [$fechaInicio, $fechaFin])
+            ->where('metodo_pago', 'transferencia')
+            ->sum(\Illuminate\Support\Facades\DB::raw('cantidad * precio_unitario'));
+
         // 6. Actividad Reciente (Últimos 5 cortes)
         $cortesRecientes = Corte::with(['barbero', 'servicio', 'cliente'])
             ->where('barberia_id', $barberia->id)
@@ -166,6 +200,9 @@ class ReporteController extends Controller
             'barberosDesempeno',
             'dias', 
             'produccionDias', 
+            'pagoUsd',
+            'pagoBs',
+            'pagoTrans',
             'cortesRecientes',
             'fiadosPendientesCount',
             'fiadosPendientesMonto'

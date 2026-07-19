@@ -79,6 +79,34 @@
         </div>
     </div>
 
+    <!-- SECCIÓN DE GRÁFICOS INTERACTIVOS -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <!-- Gráfico 1: Producción de la Semana (Líneas) -->
+        <div class="lg:col-span-2 bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-800/60 shadow-lg p-5 md:p-7">
+            <h3 class="text-xs text-white font-bold uppercase tracking-widest mb-5 flex items-center gap-3">
+                <i class="fa-solid fa-chart-line text-amber-400"></i> Producción de la Semana
+            </h3>
+            <div class="relative w-full h-[260px]">
+                <canvas id="chartProduccion"></canvas>
+            </div>
+        </div>
+
+        <!-- Gráfico 2: Métodos de Pago (Dona) -->
+        <div class="lg:col-span-1 bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-800/60 shadow-lg p-5 md:p-7 flex flex-col">
+            <h3 class="text-xs text-white font-bold uppercase tracking-widest mb-5 flex items-center gap-3">
+                <i class="fa-solid fa-chart-pie text-emerald-400"></i> Métodos de Pago
+            </h3>
+            <div class="relative w-full h-[200px] flex-1 flex justify-center items-center">
+                <canvas id="chartPagos"></canvas>
+            </div>
+            <div class="mt-4 flex justify-around text-[10px] font-bold tracking-wider text-slate-400 pt-3 border-t border-slate-800/50">
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> Efe $ (${{ number_format($pagoUsd, 2) }})</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> Efe Bs (${{ number_format($pagoBs, 2) }})</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span> Trans (${{ number_format($pagoTrans, 2) }})</span>
+            </div>
+        </div>
+    </div>
+
     <!-- MAIN CONTENT: Financial + Team -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
         
@@ -279,4 +307,110 @@
     }
     .animate-fade-in-up { animation: fadeInUp 0.5s ease-out forwards; }
 </style>
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Estilos globales de Chart.js
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.font.family = 'Outfit, Inter, sans-serif';
+
+        // 1. Chart Producción Diaria (Últimos 7 Días)
+        const ctxProduccion = document.getElementById('chartProduccion').getContext('2d');
+        
+        // Crear degradado para la línea de producción
+        const gradient = ctxProduccion.createLinearGradient(0, 0, 0, 260);
+        gradient.addColorStop(0, 'rgba(245, 166, 35, 0.4)');
+        gradient.addColorStop(1, 'rgba(245, 166, 35, 0)');
+
+        new Chart(ctxProduccion, {
+            type: 'line',
+            data: {
+                labels: @json($dias),
+                datasets: [{
+                    label: 'Producción ($)',
+                    data: @json($produccionDias),
+                    borderColor: '#f5a623',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#f5a623',
+                    pointBorderColor: '#0f172a',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    backgroundColor: gradient,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(255, 255, 255, 0.03)' }
+                    },
+                    y: {
+                        grid: { color: 'rgba(255, 255, 255, 0.03)' },
+                        ticks: {
+                            callback: function(value) { return '$' + value; }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 2. Chart Métodos de Pago
+        const ctxPagos = document.getElementById('chartPagos').getContext('2d');
+        const totalPagos = {{ $pagoUsd + $pagoBs + $pagoTrans }};
+        
+        if (totalPagos === 0) {
+            new Chart(ctxPagos, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Sin transacciones'],
+                    datasets: [{
+                        data: [1],
+                        backgroundColor: ['rgba(255, 255, 255, 0.05)'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '75%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    }
+                }
+            });
+        } else {
+            new Chart(ctxPagos, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Efectivo $', 'Efectivo Bs.', 'Transferencia'],
+                    datasets: [{
+                        data: [{{ $pagoUsd }}, {{ $pagoBs }}, {{ $pagoTrans }}],
+                        backgroundColor: ['#10b981', '#f5a623', '#3b82f6'],
+                        borderColor: '#0f172a',
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '75%',
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+    });
+</script>
+@endpush
 @endsection

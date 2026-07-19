@@ -105,6 +105,10 @@
                         <i class="fa-solid fa-cut w-5 text-center text-lg"></i>
                         <span class="font-medium text-sm">Cortes y Servicios</span>
                     </a>
+                    <a href="{{ route('inventario.index') }}" class="nav-item flex items-center space-x-4 px-6 py-3 {{ request()->routeIs('inventario.index') ? 'nav-item-active' : 'text-slate-400' }}">
+                        <i class="fa-solid fa-boxes-stacked w-5 text-center text-lg"></i>
+                        <span class="font-medium text-sm">Inventario</span>
+                    </a>
                     <a href="{{ route('barberos.index') }}" class="nav-item flex items-center space-x-4 px-6 py-3 {{ request()->routeIs('barberos.index') ? 'nav-item-active' : 'text-slate-400' }}">
                         <i class="fa-solid fa-user-tie w-5 text-center text-lg"></i>
                         <span class="font-medium text-sm">Personal</span>
@@ -407,5 +411,6 @@
             });
         });
     </script>
+    @stack('scripts')
 </body>
 </html>
