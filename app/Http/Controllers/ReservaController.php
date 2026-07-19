@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Servicio;
 use App\Models\Cliente;
 use App\Models\Barberia;
+use App\Notifications\NuevaCitaNotification;
 use Illuminate\Http\Request;
 
 class ReservaController extends Controller
@@ -108,7 +109,7 @@ class ReservaController extends Controller
         );
 
         // Crear la cita/corte como reserva pendiente
-        Corte::create([
+        $corte = Corte::create([
             'barberia_id'     => $barberia->id,
             'cliente_id'      => $cliente->id,
             'barbero_id'      => $request->barbero_id,
@@ -119,7 +120,18 @@ class ReservaController extends Controller
             'pago_completado' => false,
         ]);
 
-        return redirect()->back()->with('success', '¡Tu reserva ha sido agendada con éxito!');
+        // Notificar al barbero seleccionado
+        try {
+            $barbero = User::find($request->barbero_id);
+            if ($barbero) {
+                $corte->load(['cliente', 'servicio']);
+                $barbero->notify(new NuevaCitaNotification($corte));
+            }
+        } catch (\Exception $e) {
+            // La notificación no debe bloquear el flujo de la reserva
+        }
+
+        return redirect()->back()->with('success', '¡Tu cita ha sido agendada con éxito! Te esperamos. ✂️');
     }
 
     /**

@@ -11,45 +11,61 @@
     <style>
         body { font-family: 'Outfit', sans-serif; }
         .glass-panel {
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(9, 9, 11, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.04);
         }
         .nav-item-active {
-            background: linear-gradient(90deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0) 100%);
-            border-left: 3px solid #f59e0b;
+            background: linear-gradient(90deg, rgba(245,166,35,0.18) 0%, rgba(245,166,35,0.02) 100%);
+            border-left: 3px solid #f5a623;
             color: #fbbf24;
         }
         .nav-item {
             border-left: 3px solid transparent;
-            transition: all 0.3s ease;
+            transition: all 0.25s ease;
         }
         .nav-item:hover {
-            background: rgba(255, 255, 255, 0.03);
-            border-left: 3px solid rgba(245, 158, 11, 0.5);
+            background: rgba(245,166,35,0.05);
+            border-left: 3px solid rgba(245,166,35,0.4);
             color: #fcd34d;
         }
         /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+        ::-webkit-scrollbar-thumb { background: rgba(245,166,35,0.15); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(245,166,35,0.3); }
 
         /* Bottom Nav active state */
         .bottom-nav-item { transition: all 0.2s ease; }
-        .bottom-nav-item.active { color: #f59e0b; }
+        .bottom-nav-item.active { color: #f5a623; }
         .bottom-nav-item.active i { transform: translateY(-2px); }
 
         /* Safe area for notched phones */
         .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 12px); }
+
+        /* Notification dropdown */
+        #notif-dropdown { display: none; }
+        #notif-dropdown.open { display: block; animation: fadeDown .2s ease; }
+        @keyframes fadeDown { from { opacity:0; transform: translateY(-8px); } to { opacity:1; transform: translateY(0); } }
+
+        /* Gold shimmer on cards */
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        .gold-shimmer {
+            background: linear-gradient(90deg, transparent, rgba(245,166,35,.08), transparent);
+            background-size: 200% auto;
+            animation: shimmer 3s linear infinite;
+        }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-300 font-sans flex h-screen overflow-hidden relative">
+<body class="text-slate-300 font-sans flex h-screen overflow-hidden relative" style="background-color:#09090b;">
 
     <!-- Ambient Glow Background -->
-    <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-amber-600/20 rounded-full blur-[120px] pointer-events-none"></div>
-    <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="absolute top-[-15%] left-[-5%] w-[35%] h-[50%] rounded-full blur-[140px] pointer-events-none" style="background:rgba(245,166,35,0.07);"></div>
+    <div class="absolute bottom-[-10%] right-[-5%] w-[30%] h-[40%] rounded-full blur-[120px] pointer-events-none" style="background:rgba(245,166,35,0.04);"></div>
 
     <!-- SIDEBAR BACKDROP (Mobile only) -->
     <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-40 hidden transition-opacity duration-300 opacity-0" onclick="toggleSidebar()"></div>
@@ -62,13 +78,13 @@
         </button>
 
         <!-- Logo -->
-        <div class="p-6 border-b border-slate-800/50 flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white shadow-lg shadow-amber-500/20">
-                <i class="fa-solid fa-scissors text-xl"></i>
+        <div class="p-6 border-b flex items-center space-x-3" style="border-color:rgba(245,166,35,.12);">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg" style="background:linear-gradient(135deg,#f5a623,#d4891a);box-shadow:0 4px 20px rgba(245,166,35,.3);">
+                <i class="fa-solid fa-scissors text-black text-lg"></i>
             </div>
             <div>
-                <h2 class="text-xl font-black tracking-widest text-white leading-none">BARBER<span class="text-amber-500">ERP</span></h2>
-                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-semibold mt-1">Premium Edition</p>
+                <h2 class="text-xl font-black tracking-widest text-white leading-none">BARBER<span style="color:#f5a623;">ERP</span></h2>
+                <p class="text-[10px] uppercase tracking-widest font-semibold mt-1" style="color:#52525b;">Premium &bull; Black & Gold</p>
             </div>
         </div>
 
@@ -160,46 +176,108 @@
     <div class="flex-1 flex flex-col h-full relative z-10 min-w-0">
         
         <!-- Header -->
-        <header class="glass-panel h-16 md:h-20 border-b border-slate-800/50 flex items-center justify-between px-4 md:px-10 sticky top-0 z-30 flex-shrink-0">
+        <header class="glass-panel h-16 md:h-18 border-b flex items-center justify-between px-4 md:px-10 sticky top-0 z-30 flex-shrink-0" style="border-color:rgba(245,166,35,.1);">
             <div class="flex items-center gap-3">
                 <!-- Hamburger Button (Mobile only) -->
                 <button onclick="toggleSidebar()" class="p-2 -ml-2 text-slate-400 hover:text-white md:hidden focus:outline-none cursor-pointer" title="Abrir Menú">
                     <i class="fa-solid fa-bars text-xl"></i>
                 </button>
                 
-                <div class="flex items-center gap-2">
-                    <h1 class="text-base md:text-2xl font-bold text-white tracking-tight">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <h1 class="text-base md:text-xl font-bold text-white tracking-tight">
                         @if(auth()->check() && strtolower(auth()->user()->role) === 'barbero')
                             Espacio del Barbero
                         @else
                             Centro de Mando
                         @endif
                     </h1>
-                    <div class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                    <div class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full" style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                         <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Online</span>
                     </div>
-                    <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 font-bold text-[10px] uppercase tracking-wider">
+                    <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold" style="background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.2);color:#f5a623;">
                         <i class="fa-solid fa-money-bill-transfer"></i>
                         <span>BCV: Bs. {{ number_format($tasaBcv, 2) }}</span>
                     </div>
                 </div>
             </div>
             
-            <div class="flex items-center gap-3 md:gap-6">
-                <button class="relative text-slate-400 hover:text-white transition-colors">
-                    <i class="fa-regular fa-bell text-lg md:text-xl"></i>
-                    <span class="absolute top-0 right-0 w-1.5 h-1.5 md:w-2 md:h-2 bg-rose-500 rounded-full border-2 border-slate-900"></span>
-                </button>
-                <div class="h-8 w-px bg-slate-800"></div>
+            <div class="flex items-center gap-3 md:gap-4">
+
+                {{-- ─── NOTIFICATION BELL ─── --}}
+                @php
+                    $notifCount = auth()->check() ? auth()->user()->unreadNotifications->count() : 0;
+                    $notifs = auth()->check() ? auth()->user()->unreadNotifications->take(5) : collect();
+                @endphp
+                <div class="relative" id="notif-wrapper">
+                    <button onclick="toggleNotifDropdown()" class="relative text-slate-400 hover:text-white transition-colors p-2 rounded-xl hover:bg-white/5 cursor-pointer">
+                        <i class="fa-regular fa-bell text-lg md:text-xl"></i>
+                        @if($notifCount > 0)
+                            <span class="absolute top-1 right-1 w-4 h-4 flex items-center justify-center rounded-full text-[9px] font-black text-black" style="background:#f5a623;">
+                                {{ $notifCount > 9 ? '9+' : $notifCount }}
+                            </span>
+                        @else
+                            <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style="background:#22c55e;"></span>
+                        @endif
+                    </button>
+
+                    <!-- Dropdown -->
+                    <div id="notif-dropdown" class="absolute right-0 top-full mt-2 w-80 rounded-2xl shadow-2xl z-50 overflow-hidden" style="background:#111113;border:1px solid rgba(245,166,35,.15);">
+                        <div class="px-4 py-3 flex items-center justify-between" style="border-bottom:1px solid rgba(255,255,255,.05);">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-bell" style="color:#f5a623;font-size:13px;"></i>
+                                <span class="font-black text-white text-sm">Notificaciones</span>
+                                @if($notifCount > 0)
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-black text-black" style="background:#f5a623;">{{ $notifCount }}</span>
+                                @endif
+                            </div>
+                            @if($notifCount > 0)
+                                <form action="{{ route('notificaciones.markAll') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="text-[10px] font-bold cursor-pointer" style="color:#f5a623;">Marcar todo leído</button>
+                                </form>
+                            @endif
+                        </div>
+                        <div class="max-h-72 overflow-y-auto">
+                            @if($notifs->isEmpty())
+                                <div class="py-8 text-center">
+                                    <i class="fa-regular fa-bell-slash" style="font-size:1.5rem;color:#27272a;"></i>
+                                    <p class="text-xs mt-2" style="color:#52525b;">Sin notificaciones nuevas</p>
+                                </div>
+                            @else
+                                @foreach($notifs as $notif)
+                                    <div class="px-4 py-3 hover:bg-white/3 transition-colors" style="border-bottom:1px solid rgba(255,255,255,.04);">
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-black" style="background:rgba(245,166,35,.15);color:#f5a623;">
+                                                ✂️
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="text-sm font-bold text-white leading-snug">{{ $notif->data['mensaje'] ?? 'Nueva cita agendada' }}</p>
+                                                <p class="text-xs mt-0.5" style="color:#71717a;">
+                                                    {{ $notif->data['servicio_nombre'] ?? '' }} &bull; {{ isset($notif->data['fecha_hora']) ? \Carbon\Carbon::parse($notif->data['fecha_hora'])->format('d/m H:i') : '' }}
+                                                </p>
+                                                <p class="text-[10px] mt-1" style="color:#52525b;">{{ $notif->created_at->diffForHumans() }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @endif
+                        </div>
+                        <div class="px-4 py-2.5" style="border-top:1px solid rgba(255,255,255,.04);">
+                            <a href="{{ route('cortes.index') }}" class="text-xs font-bold block text-center" style="color:#71717a;">Ver todas las citas →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="h-8 w-px" style="background:rgba(245,166,35,.15);"></div>
                 <div class="text-right">
                     <p class="text-xs md:text-sm font-bold text-white max-w-[90px] sm:max-w-none truncate">{{ auth()->check() ? (auth()->user()->barberia->nombre ?? 'Mi Barbería') : 'Sistema' }}</p>
                     <p class="text-[9px] md:text-xs text-slate-400 hidden sm:block" id="live-time">Cargando...</p>
                 </div>
             </div>
-        </header>
 
         <!-- Dynamic Content -->
+
         <main class="flex-1 overflow-y-auto p-3 md:p-10 pb-36 md:pb-10 relative">
             <!-- Decorative inner glow -->
             <div class="absolute inset-0 bg-gradient-to-b from-transparent to-slate-950/50 pointer-events-none"></div>
@@ -259,6 +337,20 @@
         }
         setInterval(updateTime, 1000);
         updateTime();
+
+        // Toggle Notification Dropdown
+        function toggleNotifDropdown() {
+            const dd = document.getElementById('notif-dropdown');
+            if (dd) dd.classList.toggle('open');
+        }
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const wrapper = document.getElementById('notif-wrapper');
+            if (wrapper && !wrapper.contains(e.target)) {
+                const dd = document.getElementById('notif-dropdown');
+                if (dd) dd.classList.remove('open');
+            }
+        });
 
         // Toggle Sidebar on Mobile
         function toggleSidebar() {

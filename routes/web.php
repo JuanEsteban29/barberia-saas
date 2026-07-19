@@ -45,6 +45,12 @@ Route::middleware(['auth'])->group(function () {
         // Inicio / Resumen
         Route::get('/dashboard', [ReporteController::class, 'dashboardAdministrativo'])->name('dashboard');
 
+        // Notificaciones
+        Route::post('/notificaciones/mark-all', function () {
+            auth()->user()->unreadNotifications->markAsRead();
+            return redirect()->back()->with('success', 'Notificaciones marcadas como leídas.');
+        })->name('notificaciones.markAll');
+
         // Cortes y Servicios
         Route::get('/cortes', [ReporteController::class, 'vistaCortes'])->name('cortes.index');
         Route::post('/corte', [CorteController::class, 'store'])->name('cortes.store');
