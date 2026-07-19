@@ -7,9 +7,7 @@ use App\Models\Corte;
 use App\Models\Cliente;
 use App\Models\Comision;
 use App\Models\Servicio;
-use App\Models\Barberia;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
+use App\Models\User;
 
 class CorteController extends Controller
 {
@@ -53,8 +51,12 @@ class CorteController extends Controller
                 'pago_completado' => !$isFiado,
             ]);
 
-            // 2. Calcular Comisiones: 60% barbero, 40% negocio
-            $porcentajeBarbero = $barberia->porcentaje_barbero ?? 60.00;
+            // 2. Calcular Comisiones: usar porcentaje del barbero o el de la barbería
+            $barbero = User::find($request->barbero_id);
+            $porcentajeBarbero = ($barbero && $barbero->porcentaje_comision !== null) 
+                ? $barbero->porcentaje_comision 
+                : ($barberia->porcentaje_barbero ?? 60.00);
+
             $montoBarbero = $servicio->precio * ($porcentajeBarbero / 100);
             $montoNegocio = $servicio->precio * ((100 - $porcentajeBarbero) / 100);
 

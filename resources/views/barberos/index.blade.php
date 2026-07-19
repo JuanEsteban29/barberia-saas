@@ -70,6 +70,7 @@
                         <div class="bg-slate-800/50 rounded-lg p-2 text-center">
                             <p class="text-[9px] text-slate-500 uppercase tracking-wider mb-1">Comisión</p>
                             <p class="font-bold text-emerald-400 text-sm">${{ $item['su_comision'] }}</p>
+                            <span class="text-[8px] text-slate-500 block mb-0.5">({{ $item['porcentaje_comision'] !== null ? $item['porcentaje_comision'] : ($barberia->porcentaje_barbero ?? 60) }}%)</span>
                             <p class="text-[8px] text-emerald-500/50 font-bold">Bs. {{ number_format((float)str_replace(',','',$item['su_comision']) * $tasaBcv, 0) }}</p>
                         </div>
                         <div class="bg-slate-800/50 rounded-lg p-2 text-center">
@@ -119,7 +120,7 @@
                         <th class="px-5 py-3 font-bold">Rol</th>
                         <th class="px-5 py-3 text-center font-bold">Cortes</th>
                         <th class="px-5 py-3 text-right font-bold">Total Producido</th>
-                        <th class="px-5 py-3 text-right font-bold">Comisión (60%)</th>
+                        <th class="px-5 py-3 text-right font-bold">Comisión (%)</th>
                         <th class="px-5 py-3 text-right font-bold">Adelantos</th>
                         <th class="px-5 py-3 text-right font-bold">Pago Neto Sáb.</th>
                         <th class="px-5 py-3 text-center font-bold">Acciones</th>
@@ -145,7 +146,10 @@
                                 <span class="bg-slate-800 text-slate-300 font-bold text-sm px-3 py-1 rounded-md">{{ $item['cortes_totales'] }}</span>
                             </td>
                             <td class="px-5 py-4 text-right text-slate-400 font-semibold">${{ $item['total_producido'] }}</td>
-                            <td class="px-5 py-4 text-right font-black text-emerald-400">${{ $item['su_comision'] }}</td>
+                            <td class="px-5 py-4 text-right text-emerald-400">
+                                <span class="font-black">${{ $item['su_comision'] }}</span>
+                                <span class="text-[10px] text-slate-500 block font-normal">({{ $item['porcentaje_comision'] !== null ? $item['porcentaje_comision'] : ($barberia->porcentaje_barbero ?? 60) }}%)</span>
+                            </td>
                             <td class="px-5 py-4 text-right text-rose-400 font-bold">-${{ $item['descuento_adelantos'] }}</td>
                             <td class="px-5 py-4 text-right">
                                 <span class="text-xl font-black text-white">${{ $item['pago_neto_este_sabado'] }}</span>
@@ -212,10 +216,19 @@
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500"><i class="fa-solid fa-user-shield text-sm"></i></span>
                         <select name="rol" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-3 pl-10 pr-10 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition appearance-none cursor-pointer">
-                            <option value="Barbero" class="bg-slate-900">Barbero</option>
+                            <option value="barbero" class="bg-slate-900">Barbero</option>
                             <option value="admin" class="bg-slate-900">Administrador</option>
                         </select>
                         <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-500"><i class="fa-solid fa-chevron-down text-xs"></i></div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-wider">Porcentaje Comisión (%)</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500"><i class="fa-solid fa-percent text-sm"></i></span>
+                        <input type="number" name="porcentaje_comision" min="0" max="100" placeholder="Ej. 60 (Por defecto: {{ $barberia->porcentaje_barbero ?? 60 }}%)"
+                            class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition placeholder-slate-600">
                     </div>
                 </div>
 

@@ -260,6 +260,7 @@ class ReporteController extends Controller
                 'id' => $barbero->id, 
                 'name' => $barbero->name,
                 'role' => $barbero->role,
+                'porcentaje_comision' => $barbero->porcentaje_comision,
                 'cortes_totales' => Corte::where('barbero_id', $barbero->id)->count(),
                 'total_producido' => number_format($totalProducido, 2),
                 'su_comision' => number_format($suComision, 2),
@@ -267,7 +268,7 @@ class ReporteController extends Controller
                 'pago_neto_este_sabado' => number_format(max($pagoNeto, 0), 2)
             ];
         }
-        return view('barberos.index', compact('nominaSabado'));
+        return view('barberos.index', compact('nominaSabado', 'barberia'));
     }
 
     /**
@@ -367,8 +368,9 @@ class ReporteController extends Controller
     public function guardarBarbero(Request $request)
     {
         $request->validate([
-            'nombre' => 'required|string|max:255',
-            'rol'    => 'required|in:barbero,admin',
+            'nombre'              => 'required|string|max:255',
+            'rol'                 => 'required|in:barbero,admin',
+            'porcentaje_comision' => 'nullable|integer|between:0,100',
         ]);
 
         $barberia = $this->obtenerBarberiaActiva();
@@ -377,11 +379,12 @@ class ReporteController extends Controller
         $email     = $emailBase . '.' . time() . '@barber.local';
 
         User::create([
-            'name'        => $request->nombre,
-            'email'       => $email,
-            'password'    => bcrypt('barbero123'),
-            'role'        => $request->rol,
-            'barberia_id' => $barberia->id,
+            'name'                => $request->nombre,
+            'email'               => $email,
+            'password'            => bcrypt('barbero123'),
+            'role'                => $request->rol,
+            'barberia_id'         => $barberia->id,
+            'porcentaje_comision' => $request->porcentaje_comision,
         ]);
 
         return redirect()->route('barberos.index')->with('success', "Barbero '{$request->nombre}' registrado exitosamente.");

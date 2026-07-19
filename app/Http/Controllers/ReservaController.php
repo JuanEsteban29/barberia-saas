@@ -186,10 +186,14 @@ class ReservaController extends Controller
                 'pago_completado' => !$isFiado,
             ]);
 
-            // 2. Registrar comisiones: 60% barbero, 40% negocio
+            // 2. Registrar comisiones: usar porcentaje del barbero o el de la barbería
             $comisionExistente = \App\Models\Comision::where('corte_id', $corte->id)->first();
             if (!$comisionExistente) {
-                $porcentajeBarbero = $corte->barberia->porcentaje_barbero ?? 60.00;
+                $barbero = $corte->barbero;
+                $porcentajeBarbero = ($barbero && $barbero->porcentaje_comision !== null) 
+                    ? $barbero->porcentaje_comision 
+                    : ($corte->barberia->porcentaje_barbero ?? 60.00);
+
                 $montoBarbero = $corte->precio * ($porcentajeBarbero / 100);
                 $montoNegocio = $corte->precio * ((100 - $porcentajeBarbero) / 100);
 
