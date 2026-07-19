@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+use App\Models\Barberia;
 use App\Models\Corte;
 use App\Models\Cliente;
 use App\Models\Comision;
