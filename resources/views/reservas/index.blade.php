@@ -402,11 +402,16 @@
                 <!-- Payment Method -->
                 <div>
                     <label class="block text-xs font-bold text-slate-400 uppercase mb-3 tracking-wider">Método de Pago</label>
-                    <div class="grid grid-cols-3 gap-2">
+                    <div class="grid grid-cols-2 gap-2">
                         <label class="flex flex-col items-center justify-center p-3 border border-slate-800 rounded-xl bg-slate-950/60 cursor-pointer hover:border-emerald-500/50 hover:bg-emerald-500/5 transition has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-500/10 group">
-                            <input type="radio" name="metodo_pago" value="efectivo" checked class="sr-only">
+                            <input type="radio" name="metodo_pago" value="efectivo_usd" checked class="sr-only">
                             <i class="fa-solid fa-money-bill-wave text-emerald-400 text-lg mb-1.5"></i>
-                            <span class="text-[10px] font-bold text-slate-400 group-has-[:checked]:text-emerald-400">Efectivo</span>
+                            <span class="text-[10px] font-bold text-slate-400 group-has-[:checked]:text-emerald-400">Efectivo $</span>
+                        </label>
+                        <label class="flex flex-col items-center justify-center p-3 border border-slate-800 rounded-xl bg-slate-950/60 cursor-pointer hover:border-amber-500/50 hover:bg-amber-500/5 transition has-[:checked]:border-amber-500 has-[:checked]:bg-amber-500/10 group">
+                            <input type="radio" name="metodo_pago" value="efectivo_bs" class="sr-only">
+                            <i class="fa-solid fa-money-bill-transfer text-amber-400 text-lg mb-1.5"></i>
+                            <span class="text-[10px] font-bold text-slate-400 group-has-[:checked]:text-amber-400">Efectivo Bs.</span>
                         </label>
                         <label class="flex flex-col items-center justify-center p-3 border border-slate-800 rounded-xl bg-slate-950/60 cursor-pointer hover:border-blue-500/50 hover:bg-blue-500/5 transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-500/10 group">
                             <input type="radio" name="metodo_pago" value="transferencia" class="sr-only">

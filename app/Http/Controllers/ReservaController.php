@@ -161,7 +161,7 @@ class ReservaController extends Controller
     public function completar(Request $request, $id)
     {
         $request->validate([
-            'metodo_pago' => 'required|in:efectivo,transferencia,fiado',
+            'metodo_pago' => 'required|in:efectivo,efectivo_usd,efectivo_bs,transferencia,fiado',
         ]);
 
         $corte = Corte::findOrFail($id);

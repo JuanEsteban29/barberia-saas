@@ -46,27 +46,38 @@
     </div>
 
     <!-- KPI Cards -->
-    <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
 
-        <div class="bg-slate-900/50 backdrop-blur-md p-5 rounded-2xl border border-slate-800/60 shadow-lg hover:border-emerald-500/30 transition-colors">
+        <div class="bg-slate-900/50 backdrop-blur-md p-4 rounded-2xl border border-slate-800/60 shadow-lg hover:border-emerald-500/30 transition-colors">
             <div class="flex items-center gap-2 mb-3">
                 <div class="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
                     <i class="fa-solid fa-money-bill-wave text-emerald-400 text-xs"></i>
                 </div>
-                <p class="text-xs text-slate-400 uppercase tracking-widest font-bold">Efectivo</p>
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Efectivo $</p>
             </div>
-            <p class="text-2xl font-black text-emerald-400">${{ number_format($totalEfectivo, 2) }}</p>
-            <p class="text-[10px] text-emerald-500/60 font-bold mt-0.5">Bs. {{ number_format($totalEfectivo * $tasaBcv, 2) }}</p>
+            <p class="text-xl font-black text-emerald-400">${{ number_format($totalEfectivoUsd + $totalEfectivoLegacy, 2) }}</p>
+            <p class="text-[10px] text-emerald-500/60 font-bold mt-0.5">USD</p>
         </div>
 
-        <div class="bg-slate-900/50 backdrop-blur-md p-5 rounded-2xl border border-slate-800/60 shadow-lg hover:border-blue-500/30 transition-colors">
+        <div class="bg-slate-900/50 backdrop-blur-md p-4 rounded-2xl border border-slate-800/60 shadow-lg hover:border-amber-500/30 transition-colors">
+            <div class="flex items-center gap-2 mb-3">
+                <div class="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                    <i class="fa-solid fa-money-bill-transfer text-amber-400 text-xs"></i>
+                </div>
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Efectivo Bs.</p>
+            </div>
+            <p class="text-xl font-black text-amber-400">${{ number_format($totalEfectivoBs, 2) }}</p>
+            <p class="text-[10px] text-amber-500/60 font-bold mt-0.5">Bs. {{ number_format($totalEfectivoBs * $tasaBcv, 2) }}</p>
+        </div>
+
+        <div class="bg-slate-900/50 backdrop-blur-md p-4 rounded-2xl border border-slate-800/60 shadow-lg hover:border-blue-500/30 transition-colors">
             <div class="flex items-center gap-2 mb-3">
                 <div class="w-7 h-7 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
                     <i class="fa-solid fa-building-columns text-blue-400 text-xs"></i>
                 </div>
-                <p class="text-xs text-slate-400 uppercase tracking-widest font-bold">Transferencia</p>
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Transferencia</p>
             </div>
-            <p class="text-2xl font-black text-blue-400">${{ number_format($totalTransferencia, 2) }}</p>
+            <p class="text-xl font-black text-blue-400">${{ number_format($totalTransferencia, 2) }}</p>
             <p class="text-[10px] text-blue-500/60 font-bold mt-0.5">Bs. {{ number_format($totalTransferencia * $tasaBcv, 2) }}</p>
         </div>
 
@@ -137,10 +148,14 @@
                             <span class="bg-slate-800 border border-slate-700 text-slate-300 text-[9px] px-1.5 py-0.5 rounded font-medium">
                                 {{ $cita->servicio->nombre ?? 'N/A' }}
                             </span>
-                            @if($cita->metodo_pago === 'efectivo')
-                                <span class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] font-bold px-1.5 py-0.5 rounded">Efectivo</span>
-                            @else
+                            @if($cita->metodo_pago === 'efectivo_usd')
+                                <span class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] font-bold px-1.5 py-0.5 rounded">Efectivo $</span>
+                            @elseif($cita->metodo_pago === 'efectivo_bs')
+                                <span class="bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[9px] font-bold px-1.5 py-0.5 rounded">Efectivo Bs.</span>
+                            @elseif($cita->metodo_pago === 'transferencia')
                                 <span class="bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[9px] font-bold px-1.5 py-0.5 rounded">Banco</span>
+                            @else
+                                <span class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] font-bold px-1.5 py-0.5 rounded">Efectivo</span>
                             @endif
                         </div>
                     </div>
@@ -184,10 +199,14 @@
                                 </span>
                             </td>
                             <td class="px-7 py-4 text-center">
-                                @if($cita->metodo_pago === 'efectivo')
-                                    <span class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold px-2.5 py-1 rounded-md">Efectivo</span>
-                                @else
+                                @if($cita->metodo_pago === 'efectivo_usd')
+                                    <span class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold px-2.5 py-1 rounded-md">Efectivo $</span>
+                                @elseif($cita->metodo_pago === 'efectivo_bs')
+                                    <span class="bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold px-2.5 py-1 rounded-md">Efectivo Bs.</span>
+                                @elseif($cita->metodo_pago === 'transferencia')
                                     <span class="bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold px-2.5 py-1 rounded-md">Banco</span>
+                                @else
+                                    <span class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold px-2.5 py-1 rounded-md">Efectivo</span>
                                 @endif
                             </td>
                             <td class="px-7 py-4 text-right font-black text-white">${{ number_format($cita->precio, 2) }}</td>

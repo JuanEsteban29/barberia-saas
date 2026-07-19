@@ -212,6 +212,10 @@
                         </span>
                         @if($corte->estado === 'fiado')
                             <span class="bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[10px] font-bold px-2 py-0.5 rounded">Fiado</span>
+                        @elseif($corte->metodo_pago === 'efectivo_usd')
+                            <span class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded">Efectivo $</span>
+                        @elseif($corte->metodo_pago === 'efectivo_bs')
+                            <span class="bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded">Efectivo Bs.</span>
                         @elseif($corte->metodo_pago === 'transferencia')
                             <span class="bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded">Banco</span>
                         @else
@@ -247,6 +251,10 @@
                         <td class="py-4 text-center">
                             @if($corte->estado === 'fiado')
                                 <span class="bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-bold px-2.5 py-1 rounded-md">Fiado</span>
+                            @elseif($corte->metodo_pago === 'efectivo_usd')
+                                <span class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold px-2.5 py-1 rounded-md">Efectivo $</span>
+                            @elseif($corte->metodo_pago === 'efectivo_bs')
+                                <span class="bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold px-2.5 py-1 rounded-md">Efectivo Bs.</span>
                             @elseif($corte->metodo_pago === 'transferencia')
                                 <span class="bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold px-2.5 py-1 rounded-md">Banco</span>
                             @else

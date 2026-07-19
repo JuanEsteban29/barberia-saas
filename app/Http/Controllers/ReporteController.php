@@ -191,11 +191,23 @@ class ReporteController extends Controller
     // Aseguramos que esta variable siempre exista
     $serviciosDisponibles = \App\Models\Servicio::all();
 
-    // Definimos las variables de dinero explícitamente
-    $dineroEfectivo = Corte::where('barberia_id', $barberia->id)
+    // Definimos las variables de dinero explícitamente con efectivo dividido
+    $dineroEfectivoUsd = Corte::where('barberia_id', $barberia->id)
+        ->where('metodo_pago', 'efectivo_usd')
+        ->where('pago_completado', true)
+        ->sum('precio');
+
+    $dineroEfectivoBs = Corte::where('barberia_id', $barberia->id)
+        ->where('metodo_pago', 'efectivo_bs')
+        ->where('pago_completado', true)
+        ->sum('precio');
+
+    $dineroEfectivoLegacy = Corte::where('barberia_id', $barberia->id)
         ->where('metodo_pago', 'efectivo')
         ->where('pago_completado', true)
         ->sum('precio');
+
+    $dineroEfectivo = $dineroEfectivoUsd + $dineroEfectivoBs + $dineroEfectivoLegacy;
         
     $dineroTransferencia = Corte::where('barberia_id', $barberia->id)
         ->where('metodo_pago', 'transferencia')
@@ -209,6 +221,9 @@ class ReporteController extends Controller
         'barberosDisponibles', 
         'serviciosDisponibles', 
         'dineroEfectivo', 
+        'dineroEfectivoUsd', 
+        'dineroEfectivoBs', 
+        'dineroEfectivoLegacy', 
         'dineroTransferencia', 
         'totalRecaudado'
     ));

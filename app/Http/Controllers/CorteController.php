@@ -27,7 +27,7 @@ class CorteController extends Controller
             'cliente_nombre' => 'nullable|string|max:255',
             'barbero_id'     => 'required|exists:users,id',
             'servicio_id'    => 'required|exists:servicios,id',
-            'metodo_pago'    => 'required|in:efectivo,transferencia,fiado',
+            'metodo_pago'    => 'required|in:efectivo,efectivo_usd,efectivo_bs,transferencia,fiado',
         ]);
 
         $servicio = Servicio::findOrFail($request->servicio_id);

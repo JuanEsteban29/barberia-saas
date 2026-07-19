@@ -35,10 +35,14 @@ class CierreController extends Controller
             ->latest('fecha_hora')
             ->get();
 
-        // Totales del pre-cierre calculados en memoria
-        $totalEfectivo      = $citasPendientesCierre->where('metodo_pago', 'efectivo')->sum('precio');
-        $totalTransferencia = $citasPendientesCierre->where('metodo_pago', 'transferencia')->sum('precio');
-        $totalIngresos      = $totalEfectivo + $totalTransferencia;
+        // Totales del pre-cierre calculados en memoria con efectivo dividido
+        $totalEfectivoUsd    = $citasPendientesCierre->where('metodo_pago', 'efectivo_usd')->sum('precio');
+        $totalEfectivoBs     = $citasPendientesCierre->where('metodo_pago', 'efectivo_bs')->sum('precio');
+        $totalEfectivoLegacy = $citasPendientesCierre->where('metodo_pago', 'efectivo')->sum('precio');
+        $totalEfectivo       = $totalEfectivoUsd + $totalEfectivoBs + $totalEfectivoLegacy;
+
+        $totalTransferencia  = $citasPendientesCierre->where('metodo_pago', 'transferencia')->sum('precio');
+        $totalIngresos       = $totalEfectivo + $totalTransferencia;
 
         // Fiados del día actual aún pendientes
         $totalFiado = Corte::where('barberia_id', $barberia->id)
@@ -62,6 +66,9 @@ class CierreController extends Controller
         return view('finanzas.cierre', compact(
             'citasPendientesCierre',
             'totalEfectivo',
+            'totalEfectivoUsd',
+            'totalEfectivoBs',
+            'totalEfectivoLegacy',
             'totalTransferencia',
             'totalIngresos',
             'totalFiado',
@@ -103,9 +110,13 @@ class CierreController extends Controller
                 ->with('error', 'No hay cortes pendientes de cierre.');
         }
 
-        $totalEfectivo      = $citasElegibles->where('metodo_pago', 'efectivo')->sum('precio');
-        $totalTransferencia = $citasElegibles->where('metodo_pago', 'transferencia')->sum('precio');
-        $totalIngresos      = $totalEfectivo + $totalTransferencia;
+        $totalEfectivoUsd    = $citasElegibles->where('metodo_pago', 'efectivo_usd')->sum('precio');
+        $totalEfectivoBs     = $citasElegibles->where('metodo_pago', 'efectivo_bs')->sum('precio');
+        $totalEfectivoLegacy = $citasElegibles->where('metodo_pago', 'efectivo')->sum('precio');
+        $totalEfectivo       = $totalEfectivoUsd + $totalEfectivoBs + $totalEfectivoLegacy;
+
+        $totalTransferencia  = $citasElegibles->where('metodo_pago', 'transferencia')->sum('precio');
+        $totalIngresos       = $totalEfectivo + $totalTransferencia;
 
         $totalFiado = Corte::where('barberia_id', $barberia->id)
             ->where('estado', 'fiado')

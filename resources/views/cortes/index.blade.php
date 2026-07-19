@@ -82,21 +82,26 @@
                 <!-- Método de Pago -->
                 <div>
                     <label class="block text-xs font-bold uppercase text-slate-400 mb-3 tracking-wider">Método de Pago</label>
-                    <div class="grid grid-cols-3 gap-2">
-                        <label class="flex flex-col items-center justify-center p-3 border border-slate-800 rounded-xl bg-slate-950/60 cursor-pointer hover:border-emerald-500/50 hover:bg-emerald-500/5 transition has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-500/10 group">
-                            <input type="radio" name="metodo_pago" value="efectivo" checked class="sr-only">
-                            <i class="fa-solid fa-money-bill-wave text-emerald-400 text-base mb-1.5"></i>
-                            <span class="text-xs font-bold text-slate-400 group-has-[:checked]:text-emerald-400">Efectivo</span>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="flex flex-col items-center justify-center p-2.5 border border-slate-800 rounded-xl bg-slate-950/60 cursor-pointer hover:border-emerald-500/50 hover:bg-emerald-500/5 transition has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-500/10 group">
+                            <input type="radio" name="metodo_pago" value="efectivo_usd" checked class="sr-only">
+                            <i class="fa-solid fa-money-bill-wave text-emerald-400 text-sm mb-1"></i>
+                            <span class="text-[11px] font-bold text-slate-400 group-has-[:checked]:text-emerald-400">Efectivo $</span>
                         </label>
-                        <label class="flex flex-col items-center justify-center p-3 border border-slate-800 rounded-xl bg-slate-950/60 cursor-pointer hover:border-blue-500/50 hover:bg-blue-500/5 transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-500/10 group">
+                        <label class="flex flex-col items-center justify-center p-2.5 border border-slate-800 rounded-xl bg-slate-950/60 cursor-pointer hover:border-amber-500/50 hover:bg-amber-500/5 transition has-[:checked]:border-amber-500 has-[:checked]:bg-amber-500/10 group">
+                            <input type="radio" name="metodo_pago" value="efectivo_bs" class="sr-only">
+                            <i class="fa-solid fa-money-bill-transfer text-amber-400 text-sm mb-1"></i>
+                            <span class="text-[11px] font-bold text-slate-400 group-has-[:checked]:text-amber-400">Efectivo Bs.</span>
+                        </label>
+                        <label class="flex flex-col items-center justify-center p-2.5 border border-slate-800 rounded-xl bg-slate-950/60 cursor-pointer hover:border-blue-500/50 hover:bg-blue-500/5 transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-500/10 group">
                             <input type="radio" name="metodo_pago" value="transferencia" class="sr-only">
-                            <i class="fa-solid fa-building-columns text-blue-400 text-base mb-1.5"></i>
-                            <span class="text-xs font-bold text-slate-400 group-has-[:checked]:text-blue-400">Banco</span>
+                            <i class="fa-solid fa-building-columns text-blue-400 text-sm mb-1"></i>
+                            <span class="text-[11px] font-bold text-slate-400 group-has-[:checked]:text-blue-400">Banco</span>
                         </label>
-                        <label class="flex flex-col items-center justify-center p-3 border border-slate-800 rounded-xl bg-slate-950/60 cursor-pointer hover:border-rose-500/50 hover:bg-rose-500/5 transition has-[:checked]:border-rose-500 has-[:checked]:bg-rose-500/10 group">
+                        <label class="flex flex-col items-center justify-center p-2.5 border border-slate-800 rounded-xl bg-slate-950/60 cursor-pointer hover:border-rose-500/50 hover:bg-rose-500/5 transition has-[:checked]:border-rose-500 has-[:checked]:bg-rose-500/10 group">
                             <input type="radio" name="metodo_pago" value="fiado" class="sr-only">
-                            <i class="fa-solid fa-handshake text-rose-400 text-base mb-1.5"></i>
-                            <span class="text-xs font-bold text-slate-400 group-has-[:checked]:text-rose-400">Fiado</span>
+                            <i class="fa-solid fa-handshake text-rose-400 text-sm mb-1"></i>
+                            <span class="text-[11px] font-bold text-slate-400 group-has-[:checked]:text-rose-400">Fiado</span>
                         </label>
                     </div>
                 </div>
@@ -112,35 +117,45 @@
         <div class="lg:col-span-2 space-y-5">
 
             <!-- Mini Stat Cards -->
-            <div class="grid grid-cols-3 gap-3">
-                <div class="bg-slate-900/50 backdrop-blur-md p-4 rounded-2xl border border-slate-800/60 shadow-lg">
-                    <div class="flex items-center gap-2 mb-2">
-                        <div class="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
+                <div class="bg-slate-900/50 backdrop-blur-md p-3.5 rounded-2xl border border-slate-800/60 shadow-lg">
+                    <div class="flex items-center gap-1.5 mb-2">
+                        <div class="w-6 h-6 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
                             <i class="fa-solid fa-money-bill-wave text-emerald-400 text-xs"></i>
                         </div>
-                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Efectivo</span>
+                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Efectivo $</span>
                     </div>
-                    <span class="text-lg md:text-2xl font-black text-emerald-400">${{ number_format($dineroEfectivo, 2) }}</span>
-                    <p class="text-[9px] text-emerald-500/60 font-bold mt-0.5">Bs. {{ number_format($dineroEfectivo * $tasaBcv, 2) }}</p>
+                    <span class="text-base md:text-xl font-black text-emerald-400">${{ number_format($dineroEfectivoUsd + $dineroEfectivoLegacy, 2) }}</span>
+                    <p class="text-[9px] text-emerald-500/60 font-bold mt-0.5">USD</p>
                 </div>
-                <div class="bg-slate-900/50 backdrop-blur-md p-4 rounded-2xl border border-slate-800/60 shadow-lg">
-                    <div class="flex items-center gap-2 mb-2">
-                        <div class="w-7 h-7 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center flex-shrink-0">
+                <div class="bg-slate-900/50 backdrop-blur-md p-3.5 rounded-2xl border border-slate-800/60 shadow-lg">
+                    <div class="flex items-center gap-1.5 mb-2">
+                        <div class="w-6 h-6 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center flex-shrink-0">
+                            <i class="fa-solid fa-money-bill-transfer text-amber-400 text-xs"></i>
+                        </div>
+                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Efectivo Bs.</span>
+                    </div>
+                    <span class="text-base md:text-xl font-black text-amber-400">${{ number_format($dineroEfectivoBs, 2) }}</span>
+                    <p class="text-[9px] text-amber-500/60 font-bold mt-0.5">Bs. {{ number_format($dineroEfectivoBs * $tasaBcv, 2) }}</p>
+                </div>
+                <div class="bg-slate-900/50 backdrop-blur-md p-3.5 rounded-2xl border border-slate-800/60 shadow-lg">
+                    <div class="flex items-center gap-1.5 mb-2">
+                        <div class="w-6 h-6 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center flex-shrink-0">
                             <i class="fa-solid fa-building-columns text-blue-400 text-xs"></i>
                         </div>
-                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Banco</span>
+                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Banco</span>
                     </div>
-                    <span class="text-lg md:text-2xl font-black text-blue-400">${{ number_format($dineroTransferencia, 2) }}</span>
+                    <span class="text-base md:text-xl font-black text-blue-400">${{ number_format($dineroTransferencia, 2) }}</span>
                     <p class="text-[9px] text-blue-500/60 font-bold mt-0.5">Bs. {{ number_format($dineroTransferencia * $tasaBcv, 2) }}</p>
                 </div>
-                <div class="bg-gradient-to-br from-amber-900/30 to-slate-900/60 backdrop-blur-md p-4 rounded-2xl border border-amber-800/30 shadow-lg">
-                    <div class="flex items-center gap-2 mb-2">
-                        <div class="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center flex-shrink-0">
+                <div class="bg-gradient-to-br from-amber-900/20 to-slate-900/60 backdrop-blur-md p-3.5 rounded-2xl border border-amber-800/30 shadow-lg">
+                    <div class="flex items-center gap-1.5 mb-2">
+                        <div class="w-6 h-6 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center flex-shrink-0">
                             <i class="fa-solid fa-vault text-amber-400 text-xs"></i>
                         </div>
-                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Caja</span>
+                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Total Caja</span>
                     </div>
-                    <span class="text-lg md:text-2xl font-black text-amber-400">${{ number_format($totalRecaudado, 2) }}</span>
+                    <span class="text-base md:text-xl font-black text-amber-400">${{ number_format($totalRecaudado, 2) }}</span>
                     <p class="text-[9px] text-amber-500/60 font-bold mt-0.5">Bs. {{ number_format($totalRecaudado * $tasaBcv, 2) }}</p>
                 </div>
             </div>
