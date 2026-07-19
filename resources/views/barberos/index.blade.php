@@ -71,7 +71,6 @@
                             <p class="text-[9px] text-slate-500 uppercase tracking-wider mb-1">Comisión</p>
                             <p class="font-bold text-emerald-400 text-sm">${{ $item['su_comision'] }}</p>
                             <span class="text-[8px] text-slate-500 block mb-0.5">({{ $item['porcentaje_comision'] !== null ? $item['porcentaje_comision'] : ($barberia->porcentaje_barbero ?? 60) }}%)</span>
-                            <p class="text-[8px] text-emerald-500/50 font-bold">Bs. {{ number_format((float)str_replace(',','',$item['su_comision']) * $tasaBcv, 0) }}</p>
                         </div>
                         <div class="bg-slate-800/50 rounded-lg p-2 text-center">
                             <p class="text-[9px] text-slate-500 uppercase tracking-wider mb-1">Adelantos</p>
@@ -79,27 +78,30 @@
                         </div>
                     </div>
                     
-                    {{-- Acción principal: Cerrar Cuenta --}}
-                    <form action="{{ route('semana.cerrar') }}" method="POST" class="w-full mb-2">
-                        @csrf
-                        <input type="hidden" name="barbero_id" value="{{ $item['id'] }}">
-                        <button type="submit"
-                            class="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-black py-3.5 px-4 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 text-sm">
-                            <i class="fa-solid fa-lock text-base"></i>
-                            <span>Cerrar Cuenta del Sábado</span>
+                    <div class="flex gap-2 mb-2">
+                        <form action="{{ route('semana.cerrar') }}" method="POST" class="flex-1">
+                            @csrf
+                            <input type="hidden" name="barbero_id" value="{{ $item['id'] }}">
+                            <button type="submit"
+                                class="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-black py-3 px-4 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 text-sm">
+                                <i class="fa-solid fa-lock text-base"></i>
+                                <span>Cerrar Cuenta</span>
+                            </button>
+                        </form>
+                        <button onclick="abrirModalEditar({{ $item['id'] }}, '{{ addslashes($item['name']) }}', {{ $item['porcentaje_comision'] ?? 'null' }})"
+                            class="bg-slate-800 hover:bg-blue-900/40 border border-slate-700 hover:border-blue-700/60 text-slate-400 hover:text-blue-400 text-xs font-bold px-3 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-pencil text-xs"></i>
                         </button>
-                    </form>
-                    {{-- Acción secundaria: Dar de baja --}}
-                    <form action="{{ route('barberos.destroy', $item['id']) }}" method="POST"
-                        onsubmit="return confirm('¿Seguro que deseas dar de baja a este trabajador?')" class="w-full">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit"
-                            class="w-full bg-slate-800 hover:bg-rose-900/40 border border-slate-700 hover:border-rose-700/60 text-slate-400 hover:text-rose-400 text-xs font-bold py-2.5 px-4 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-user-slash text-xs"></i>
-                            <span>Dar de Baja al Trabajador</span>
-                        </button>
-                    </form>
+                        <form action="{{ route('barberos.destroy', $item['id']) }}" method="POST"
+                            onsubmit="return confirm('¿Seguro que deseas dar de baja a este trabajador?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"
+                                class="bg-slate-800 hover:bg-rose-900/40 border border-slate-700 hover:border-rose-700/60 text-slate-400 hover:text-rose-400 text-xs font-bold px-3 h-full rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-user-slash text-xs"></i>
+                            </button>
+                        </form>
+                    </div>
                 </div>
             @endforeach
 
@@ -152,23 +154,31 @@
                             </td>
                             <td class="px-5 py-4 text-right text-rose-400 font-bold">-${{ $item['descuento_adelantos'] }}</td>
                             <td class="px-5 py-4 text-right">
-                                <span class="text-xl font-black text-white">${{ $item['pago_neto_este_sabado'] }}</span>
+                                <div>
+                                    <span class="text-xl font-black text-white">${{ $item['pago_neto_este_sabado'] }}</span>
+                                    <p class="text-[10px] text-amber-500/60 font-bold">Bs. {{ number_format((float)str_replace(',','',$item['pago_neto_este_sabado']) * $tasaBcv, 0) }}</p>
+                                </div>
                             </td>
                             <td class="px-5 py-4 text-center">
                                 <div class="flex justify-center gap-2">
                                     <form action="{{ route('semana.cerrar') }}" method="POST">
                                         @csrf
                                         <input type="hidden" name="barbero_id" value="{{ $item['id'] }}">
-                                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-1.5 px-3 rounded-lg transition cursor-pointer flex items-center gap-1.5 shadow-lg shadow-emerald-500/10">
-                                            <i class="fa-solid fa-lock"></i> Cerrar Cuenta
+                                        <button type="submit" title="Cerrar cuenta del sábado" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-1.5 px-3 rounded-lg transition cursor-pointer flex items-center gap-1.5 shadow-lg shadow-emerald-500/10">
+                                            <i class="fa-solid fa-lock"></i> Cerrar
                                         </button>
                                     </form>
+                                    <button onclick="abrirModalEditar({{ $item['id'] }}, '{{ addslashes($item['name']) }}', {{ $item['porcentaje_comision'] ?? 'null' }})"
+                                        title="Editar barbero"
+                                        class="bg-blue-600/80 hover:bg-blue-600 text-white text-xs font-bold py-1.5 px-3 rounded-lg transition cursor-pointer flex items-center gap-1.5">
+                                        <i class="fa-solid fa-pencil"></i> Editar
+                                    </button>
                                     <form action="{{ route('barberos.destroy', $item['id']) }}" method="POST"
                                         onsubmit="return confirm('¿Seguro que deseas dar de baja a este trabajador?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="bg-rose-600/80 hover:bg-rose-600 text-white text-xs font-bold py-1.5 px-3 rounded-lg transition cursor-pointer flex items-center gap-1.5">
-                                            <i class="fa-solid fa-user-slash"></i> Baja
+                                        <button type="submit" class="bg-rose-600/80 hover:bg-rose-600 text-white text-xs font-bold py-1.5 px-2 rounded-lg transition cursor-pointer flex items-center gap-1.5">
+                                            <i class="fa-solid fa-user-slash"></i>
                                         </button>
                                     </form>
                                 </div>
@@ -247,9 +257,84 @@
     </div>
 </div>
 
+<!-- MODAL: Editar Barbero -->
+<div id="modalEditarBarbero" style="display: none;" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div onclick="cerrarModalEditar()" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm"></div>
+
+    <div class="relative bg-slate-900 border border-slate-800 w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden z-10">
+        <div class="p-5 md:p-7">
+            <div class="flex justify-between items-center pb-4 border-b border-slate-800 mb-5">
+                <h3 class="text-base font-black text-white flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center">
+                        <i class="fa-solid fa-pencil text-blue-400 text-sm"></i>
+                    </div>
+                    Editar Barbero
+                </h3>
+                <button type="button" onclick="cerrarModalEditar()"
+                    class="w-8 h-8 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+
+            <form id="formEditarBarbero" method="POST" class="space-y-5">
+                @csrf
+                @method('PUT')
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-wider">Nombre Completo</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500"><i class="fa-regular fa-user text-sm"></i></span>
+                        <input type="text" id="editNombre" name="nombre" required
+                            class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-wider">Porcentaje Comisión (%)</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500"><i class="fa-solid fa-percent text-sm"></i></span>
+                        <input type="number" id="editPorcentaje" name="porcentaje_comision" min="0" max="100" placeholder="{{ $barberia->porcentaje_barbero ?? 60 }}"
+                            class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition placeholder-slate-600">
+                    </div>
+                    <p class="text-[10px] text-slate-500 mt-1">Dejar vacío para usar el porcentaje global ({{ $barberia->porcentaje_barbero ?? 60 }}%).</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-wider">Nueva Contraseña <span class="font-normal text-slate-500 normal-case">(opcional)</span></label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500"><i class="fa-solid fa-key text-sm"></i></span>
+                        <input type="password" name="password" minlength="6" placeholder="Mínimo 6 caracteres"
+                            class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition placeholder-slate-600">
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-slate-800">
+                    <button type="button" onclick="cerrarModalEditar()"
+                        class="px-5 py-2.5 text-sm font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl transition-colors cursor-pointer">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                        class="px-5 py-2.5 text-sm font-black text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 rounded-xl transition-all shadow-lg shadow-blue-500/20 cursor-pointer">
+                        <i class="fa-solid fa-floppy-disk mr-1.5"></i> Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
     function toggleModalBarbero(action) {
         document.getElementById('modalBarbero').style.display = action ? 'flex' : 'none';
+    }
+    function abrirModalEditar(id, nombre, porcentaje) {
+        document.getElementById('formEditarBarbero').action = '/trabajador/' + id;
+        document.getElementById('editNombre').value = nombre;
+        document.getElementById('editPorcentaje').value = porcentaje !== null ? porcentaje : '';
+        document.getElementById('modalEditarBarbero').style.display = 'flex';
+    }
+    function cerrarModalEditar() {
+        document.getElementById('modalEditarBarbero').style.display = 'none';
     }
 </script>
 

@@ -323,7 +323,8 @@ class ReporteController extends Controller
                 'pago_neto_este_sabado' => number_format(max($pagoNeto, 0), 2)
             ];
         }
-        return view('barberos.index', compact('nominaSabado', 'barberia'));
+        $tasaBcv = $barberia->tasa_bcv ?? 1;
+        return view('barberos.index', compact('nominaSabado', 'barberia', 'tasaBcv'));
     }
 
     /**
@@ -355,6 +356,8 @@ class ReporteController extends Controller
             ->whereIn('role', ['admin', 'barbero'])
             ->get();
 
+        $tasaBcv = $barberia->tasa_bcv ?? 1;
+
         return view('finanzas.index', compact(
             'totalBruto', 
             'totalGastos', 
@@ -363,7 +366,8 @@ class ReporteController extends Controller
             'dineroTransferencia', 
             'totalComisiones', 
             'gastosSemanales',
-            'barberos'
+            'barberos',
+            'tasaBcv'
         ));
     }
 
@@ -379,7 +383,8 @@ class ReporteController extends Controller
             ->where('pago_completado', false)
             ->get();
 
-        return view('cortes.fiados', compact('fiadosPendientes'));
+        $tasaBcv = $barberia->tasa_bcv ?? 1;
+        return view('cortes.fiados', compact('fiadosPendientes', 'tasaBcv'));
     }
 
     /**
@@ -465,7 +470,28 @@ class ReporteController extends Controller
     public function deleteTrabajador($id) 
     { 
         User::findOrFail($id)->delete(); 
-        return redirect()->back(); 
+        return redirect()->back()->with('success', 'Trabajador eliminado correctamente.'); 
+    }
+
+    public function editarBarbero(Request $request, $id)
+    {
+        $request->validate([
+            'nombre'              => 'required|string|max:255',
+            'porcentaje_comision' => 'nullable|integer|between:0,100',
+            'password'            => 'nullable|string|min:6',
+        ]);
+
+        $barbero = User::findOrFail($id);
+        $data = [
+            'name'                => $request->nombre,
+            'porcentaje_comision' => $request->porcentaje_comision,
+        ];
+        if ($request->filled('password')) {
+            $data['password'] = bcrypt($request->password);
+        }
+        $barbero->update($data);
+
+        return redirect()->route('barberos.index')->with('success', "Barbero '{$barbero->name}' actualizado correctamente.");
     }
 
     public function cerrarSemana(Request $request) 

@@ -79,13 +79,19 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-wider">Link Público de Reservas para Clientes</label>
                         <div class="flex items-center gap-2">
-                            <input type="text" readonly value="{{ route('reservas.public.create', $barberia->slug) }}" 
+                            <input type="text" id="linkPublico" readonly value="{{ route('reservas.public.create', $barberia->slug) }}" 
                                 class="flex-1 bg-slate-950/40 border border-slate-800 rounded-xl py-3 px-4 text-sm text-slate-400 focus:outline-none cursor-default">
+                            <button type="button" id="btnCopiar"
+                                onclick="copiarLink()"
+                                class="bg-slate-800 hover:bg-amber-600 text-slate-300 hover:text-white font-bold px-4 py-3 rounded-xl transition text-sm flex items-center gap-2 cursor-pointer">
+                                <i class="fa-regular fa-copy" id="iconoCopiar"></i> <span id="textoCopiar" class="hidden sm:inline">Copiar</span>
+                            </button>
                             <a href="{{ route('reservas.public.create', $barberia->slug) }}" target="_blank"
                                 class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-4 py-3 rounded-xl transition text-sm flex items-center gap-2">
                                 <i class="fa-solid fa-up-right-from-square"></i> <span class="hidden sm:inline">Ver</span>
                             </a>
                         </div>
+                        <p class="text-[10px] text-slate-600 mt-1">Comparte este link con tus clientes para que puedan agendar citas en línea.</p>
                     </div>
                 </div>
             </div>
@@ -168,6 +174,25 @@
             wrapper.style.display = 'none';
             input.removeAttribute('required');
         }
+    }
+
+    function copiarLink() {
+        const link = document.getElementById('linkPublico').value;
+        navigator.clipboard.writeText(link).then(() => {
+            const btn   = document.getElementById('btnCopiar');
+            const icon  = document.getElementById('iconoCopiar');
+            const texto = document.getElementById('textoCopiar');
+            icon.className  = 'fa-solid fa-circle-check';
+            btn.classList.remove('bg-slate-800', 'text-slate-300');
+            btn.classList.add('bg-emerald-600', 'text-white');
+            if (texto) texto.textContent = '¡Copiado!';
+            setTimeout(() => {
+                icon.className  = 'fa-regular fa-copy';
+                btn.classList.remove('bg-emerald-600', 'text-white');
+                btn.classList.add('bg-slate-800', 'text-slate-300');
+                if (texto) texto.textContent = 'Copiar';
+            }, 2000);
+        });
     }
 </script>
 

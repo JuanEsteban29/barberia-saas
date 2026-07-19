@@ -162,10 +162,17 @@
 
             <!-- Historial de Cortes -->
             <div class="bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-800/60 shadow-xl overflow-hidden">
-                <div class="px-5 py-4 bg-gradient-to-r from-slate-800/80 to-transparent border-b border-slate-800/60">
-                    <h3 class="font-bold text-white text-xs uppercase tracking-widest flex items-center gap-3">
+                <div class="px-5 py-4 bg-gradient-to-r from-slate-800/80 to-transparent border-b border-slate-800/60 flex flex-col sm:flex-row sm:items-center gap-3">
+                    <h3 class="font-bold text-white text-xs uppercase tracking-widest flex items-center gap-3 flex-1">
                         <i class="fa-solid fa-clock-rotate-left text-slate-400"></i> Historial de Cortes
+                        <span class="bg-slate-800 text-slate-400 text-[10px] font-bold px-2 py-0.5 rounded-md">{{ $historialCortes->count() }}</span>
                     </h3>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500"><i class="fa-solid fa-magnifying-glass text-xs"></i></span>
+                        <input type="text" id="buscarCorte" placeholder="Buscar cliente o barbero..."
+                            onkeyup="filtrarCortes()"
+                            class="bg-slate-950/80 border border-slate-800 rounded-lg pl-8 pr-3 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 w-full sm:w-52 placeholder-slate-600">
+                    </div>
                 </div>
 
                 <!-- Mobile Cards -->
@@ -195,7 +202,8 @@
                                     <form action="{{ route('reservas.completar', $corte->id) }}" method="POST" class="inline-flex gap-1 ml-auto">
                                         @csrf
                                         <select name="metodo_pago" required class="bg-slate-800 border border-slate-700 rounded-lg text-[10px] px-1.5 py-1 focus:ring-1 focus:ring-amber-500 focus:outline-none text-slate-300 cursor-pointer">
-                                            <option value="efectivo">Efectivo</option>
+                                            <option value="efectivo_usd">Efectivo $</option>
+                                            <option value="efectivo_bs">Efectivo Bs.</option>
                                             <option value="transferencia">Banco</option>
                                             <option value="fiado">Fiado</option>
                                         </select>
@@ -216,7 +224,7 @@
 
                 <!-- Desktop Table -->
                 <div class="hidden md:block overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
+                    <table id="tablaCortes" class="w-full text-left border-collapse">
                         <thead>
                             <tr class="text-slate-500 uppercase text-[10px] tracking-widest border-b border-slate-800/60">
                                 <th class="px-5 py-3 font-bold">Fecha</th>
@@ -254,7 +262,8 @@
                                             <form action="{{ route('reservas.completar', $corte->id) }}" method="POST" class="inline-flex gap-1.5 justify-center items-center">
                                                 @csrf
                                                 <select name="metodo_pago" required class="bg-slate-800 border border-slate-700 rounded-lg text-xs px-2 py-1.5 focus:ring-1 focus:ring-amber-500 focus:outline-none text-slate-300 cursor-pointer">
-                                                    <option value="efectivo">Efectivo</option>
+                                                    <option value="efectivo_usd">Efectivo $</option>
+                                                    <option value="efectivo_bs">Efectivo Bs.</option>
                                                     <option value="transferencia">Banco</option>
                                                     <option value="fiado">Fiado</option>
                                                 </select>
@@ -285,6 +294,23 @@
         </div>
     </div>
 </div>
+
+<script>
+// Búsqueda en tiempo real en el historial de cortes
+function filtrarCortes() {
+    const q = document.getElementById('buscarCorte').value.toLowerCase();
+    // Desktop rows
+    document.querySelectorAll('#tablaCortes tbody tr').forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(q) ? '' : 'none';
+    });
+    // Mobile cards
+    document.querySelectorAll('.corte-card-mobile').forEach(card => {
+        const text = card.innerText.toLowerCase();
+        card.style.display = text.includes(q) ? '' : 'none';
+    });
+}
+</script>
 
 <style>
     @keyframes fadeInUp {

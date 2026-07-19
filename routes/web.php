@@ -59,6 +59,7 @@ Route::middleware(['auth'])->group(function () {
         // Barberos / Personal
         Route::get('/barberos', [ReporteController::class, 'vistaBarberos'])->name('barberos.index');
         Route::post('/barberos', [ReporteController::class, 'guardarBarbero'])->name('barberos.store');
+        Route::put('/trabajador/{id}', [ReporteController::class, 'editarBarbero'])->name('barberos.update');
         Route::delete('/trabajador/{id}', [ReporteController::class, 'deleteTrabajador'])->name('barberos.destroy');
 
         // Gastos y Finanzas
@@ -88,6 +89,9 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/inventario/{id}', [ProductoController::class, 'update'])->name('inventario.update');
         Route::delete('/inventario/{id}', [ProductoController::class, 'destroy'])->name('inventario.destroy');
         Route::post('/inventario/vender', [ProductoController::class, 'vender'])->name('inventario.vender');
+
+        // Reporte PDF
+        Route::get('/reporte/descargar', [App\Http\Controllers\ReporteController::class, 'descargarReporte'])->name('reporte.descargar');
     });
 
     // ------------------------------------------
@@ -112,4 +116,3 @@ Route::get('/{slug}/reservar', [ReservaController::class, 'createPublic'])->name
 Route::get('/{slug}/reserva', [ReservaController::class, 'createPublic']);
 Route::post('/{slug}/reservar', [ReservaController::class, 'storePublic'])->name('reservas.public.store');
 Route::post('/{slug}/reserva', [ReservaController::class, 'storePublic']);
-Route::get('/reporte/descargar', [App\Http\Controllers\ReporteController::class, 'descargarReporte'])->name('reporte.descargar');
