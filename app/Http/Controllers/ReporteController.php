@@ -557,7 +557,7 @@ class ReporteController extends Controller
         $citasHoy = Corte::with(['servicio', 'cliente'])
             ->where('barbero_id', $user->id)
             ->where('estado', 'pendiente')
-            ->whereDate('fecha_hora', Carbon::today())
+            ->whereDate('fecha_hora', '<=', Carbon::today())
             ->orderBy('fecha_hora', 'asc')
             ->get();
 

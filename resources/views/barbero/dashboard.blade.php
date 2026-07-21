@@ -118,7 +118,50 @@
                 </span>
             </div>
 
-            <div class="overflow-x-auto flex-1">
+            <!-- Mobile View (Cards) -->
+            <div class="md:hidden divide-y divide-slate-800/50">
+                @forelse($citasHoy as $reserva)
+                    <div class="p-4 space-y-3">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-black px-2 py-0.5 rounded font-mono inline-block mb-1">
+                                    {{ $reserva->fecha_hora->format('h:i A') }}
+                                </span>
+                                <p class="font-bold text-white text-sm">{{ $reserva->cliente->nombre }}</p>
+                                <span class="bg-slate-800 border border-slate-700 text-slate-300 text-[10px] px-2 py-0.5 rounded inline-block mt-1">
+                                    {{ $reserva->servicio->nombre }}
+                                </span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-base font-black text-amber-400 font-mono">${{ number_format($reserva->precio, 2) }}</span>
+                            </div>
+                        </div>
+
+                        <form action="{{ route('reservas.completar', $reserva->id) }}" method="POST" class="flex gap-2 items-center pt-1">
+                            @csrf
+                            <select name="metodo_pago" required
+                                class="flex-1 bg-slate-950 border border-slate-800 rounded-xl text-xs py-2 px-3 focus:ring-1 focus:ring-amber-500 focus:outline-none text-slate-300 cursor-pointer">
+                                <option value="efectivo_usd">💵 Efectivo $</option>
+                                <option value="efectivo_bs">💵 Efectivo Bs.</option>
+                                <option value="transferencia">🏦 Banco</option>
+                                <option value="fiado">🤝 Fiado</option>
+                            </select>
+                            <button type="submit"
+                                class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition cursor-pointer flex items-center gap-1.5 shadow-lg shadow-emerald-500/20">
+                                <i class="fa-solid fa-check"></i> Cobrar Cita
+                            </button>
+                        </form>
+                    </div>
+                @empty
+                    <div class="py-12 text-center text-slate-500 text-xs">
+                        <i class="fa-regular fa-calendar-xmark text-3xl mb-2 opacity-20 block"></i>
+                        No tienes citas programadas pendientes.
+                    </div>
+                @endforelse
+            </div>
+
+            <!-- Desktop View (Table) -->
+            <div class="hidden md:block overflow-x-auto flex-1">
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="text-slate-500 uppercase text-[9px] tracking-widest border-b border-slate-800/60">
@@ -165,7 +208,7 @@
                             <tr>
                                 <td colspan="5" class="px-5 py-16 text-center text-slate-500 text-xs">
                                     <i class="fa-regular fa-calendar-xmark text-3xl mb-3 opacity-20 block"></i>
-                                    No tienes citas programadas para hoy.
+                                    No tienes citas programadas pendientes.
                                 </td>
                             </tr>
                         @endforelse
@@ -175,7 +218,7 @@
         </div>
 
         <!-- Columna 2: Citas de Próximos Días (1/3 width) -->
-        <div class="lg:col-span-1 bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-800/60 shadow-xl overflow-hidden flex flex-col max-h-[380px]">
+        <div class="lg:col-span-1 bg-slate-900/50 backdrop-blur-md rounded-2xl border border-slate-800/60 shadow-xl overflow-hidden flex flex-col max-h-[420px]">
             <div class="px-5 py-4 bg-gradient-to-r from-slate-800/80 to-transparent border-b border-slate-800/60 flex justify-between items-center">
                 <h3 class="font-bold text-white text-xs uppercase tracking-widest flex items-center gap-2">
                     <i class="fa-solid fa-calendar-days text-blue-400"></i> Próximos Días
@@ -189,7 +232,7 @@
                             <div>
                                 <p class="font-bold text-white text-xs">{{ $reserva->cliente->nombre }}</p>
                                 <span class="bg-slate-800 border border-slate-700 text-slate-400 text-[9px] px-1.5 py-0.5 rounded inline-block mt-1">
-                                    {{ $reserva->servicio->nombre }}
+                                    {{ $reserva->servicio->nombre }} (${{ number_format($reserva->precio, 2) }})
                                 </span>
                             </div>
                             <div class="text-right">
@@ -199,6 +242,22 @@
                                 <span class="text-[10px] text-slate-400 font-bold block">{{ $reserva->fecha_hora->format('h:i A') }}</span>
                             </div>
                         </div>
+
+                        <!-- Formulario de cobro para citas futuras adelantadas -->
+                        <form action="{{ route('reservas.completar', $reserva->id) }}" method="POST" class="flex gap-1.5 items-center pt-1 border-t border-slate-900/60">
+                            @csrf
+                            <select name="metodo_pago" required
+                                class="flex-1 bg-slate-900 border border-slate-800 rounded-lg text-[10px] px-2 py-1 focus:ring-1 focus:ring-amber-500 focus:outline-none text-slate-300 cursor-pointer">
+                                <option value="efectivo_usd">Efectivo $</option>
+                                <option value="efectivo_bs">Efectivo Bs.</option>
+                                <option value="transferencia">Banco</option>
+                                <option value="fiado">Fiado</option>
+                            </select>
+                            <button type="submit"
+                                class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-2.5 py-1 rounded-lg text-[10px] transition cursor-pointer flex items-center gap-1 shadow-sm">
+                                <i class="fa-solid fa-check"></i> Cobrar
+                            </button>
+                        </form>
                     </div>
                 @empty
                     <div class="py-12 text-center text-slate-500 text-xs">

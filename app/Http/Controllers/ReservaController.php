@@ -178,9 +178,12 @@ class ReservaController extends Controller
 
         $corte = Corte::findOrFail($id);
 
-        // Aseguramos que la reserva pertenece a la barbería del usuario autenticado
-        if ($corte->barberia_id !== auth()->user()->barberia_id) {
-            abort(403);
+        $user = auth()->user();
+        $userBarberiaId = $user->barberia_id ?? ($user->barberia->id ?? null);
+
+        // Permitir si es el barbero asignado O si la reserva pertenece a la barbería del usuario
+        if ($corte->barbero_id !== $user->id && $userBarberiaId && $corte->barberia_id !== $userBarberiaId) {
+            abort(403, 'No tienes permiso para cobrar esta reserva.');
         }
 
         // Si ya está completada, no hacer nada
