@@ -18,7 +18,8 @@ class LoginController extends Controller
         if (Auth::check()) {
             return $this->redirectBasedOnRole(Auth::user());
         }
-        return view('auth.login');
+        $barberia = \App\Models\Barberia::where('slug', 'barberia-principal')->first();
+        return view('auth.login', compact('barberia'));
     }
 
     // --- PROCESAR LOGIN ---
@@ -42,7 +43,8 @@ class LoginController extends Controller
     // --- VISTA REGISTRO ---
     public function showRegisterForm()
     {
-        return view('auth.register');
+        $barberia = \App\Models\Barberia::where('slug', 'barberia-principal')->first();
+        return view('auth.register', compact('barberia'));
     }
 
     // --- PROCESAR REGISTRO ---

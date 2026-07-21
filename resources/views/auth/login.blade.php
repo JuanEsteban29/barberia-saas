@@ -1,9 +1,14 @@
+@php
+    $barberia = $barberia ?? \App\Models\Barberia::where('slug', 'barberia-principal')->first();
+    $nombreNegocio = $barberia->nombre ?? 'Mi Barbería';
+    $logoNegocio = $barberia->logo ?? null;
+@endphp
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión - Barber ERP</title>
+    <title>{{ $nombreNegocio }} - Iniciar Sesión</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
@@ -13,8 +18,13 @@
 
     <div class="w-full max-w-md bg-slate-900/50 backdrop-blur-md border border-slate-800 p-8 rounded-2xl shadow-2xl relative z-10">
         <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-3xl mb-4">💈</div>
-            <h1 class="text-3xl font-extrabold tracking-tight text-white">Barber <span class="text-amber-400">ERP</span></h1>
+            @if($logoNegocio)
+                <img src="{{ $logoNegocio }}" alt="Logo" class="w-16 h-16 object-contain rounded-2xl border border-slate-800 mx-auto mb-3 shadow-lg">
+            @else
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-3xl mb-3 shadow-lg">💈</div>
+            @endif
+            <h1 class="text-2xl font-extrabold tracking-tight text-white uppercase">{{ $nombreNegocio }}</h1>
+            <p class="text-[10px] uppercase tracking-widest font-bold mt-1 text-amber-500">TRIM</p>
         </div>
 
         @if(session('success'))
